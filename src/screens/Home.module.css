@@ -1,0 +1,319 @@
+.wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.blobTeal,
+.blobAmber {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.35;
+  z-index: 0;
+}
+.blobTeal {
+  width: 340px;
+  height: 340px;
+  background: #14b8a6;
+  top: -80px;
+  right: -60px;
+}
+.blobAmber {
+  width: 300px;
+  height: 300px;
+  background: #f59e0b;
+  bottom: -80px;
+  left: -40px;
+  opacity: 0.22;
+}
+
+.greeting {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-600);
+  padding: 4px 10px;
+  background: var(--accent-50);
+  border-radius: 99px;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pill {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 99px;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.pill:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.pillValue {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.pillLabel {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cards {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  overflow: hidden;
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
+  cursor: pointer;
+  transform-origin: center;
+}
+
+.card:hover {
+  box-shadow: 0 18px 34px -20px rgba(15, 23, 42, 0.34);
+  border-color: var(--border-medium);
+}
+
+.card:active {
+  transform: scale(0.985);
+}
+
+.cardTop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 22px;
+  color: #fff;
+  overflow: hidden;
+}
+
+.shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.18), transparent 55%);
+  pointer-events: none;
+}
+
+.iconCircle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition:
+    transform var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.card:hover .iconCircle {
+  transform: scale(1.08) rotate(-4deg);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.topText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.category {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.teal .cardTop {
+  background: linear-gradient(135deg, #0d7a72, #14b8a6);
+}
+.amber .cardTop {
+  background: linear-gradient(135deg, #b45309, #f59e0b);
+}
+.indigo .cardTop {
+  background: linear-gradient(135deg, #312e81, #4f46e5);
+}
+
+.cardBody {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.statsRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.statChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: 99px;
+  font-size: 12px;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.card:hover .statChip {
+  transform: translateY(-1px);
+  border-color: var(--border-medium);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.statValue {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.statLabel {
+  color: var(--text-secondary);
+  font-size: 11.5px;
+}
+
+.progressWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progressTrack {
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-500), var(--accent-600));
+  border-radius: 99px;
+}
+
+.teal .progressFill { background: linear-gradient(90deg, #14b8a6, #0d7a72); }
+.amber .progressFill { background: linear-gradient(90deg, #f59e0b, #b45309); }
+.indigo .progressFill { background: linear-gradient(90deg, #4f46e5, #312e81); }
+
+.progressLabel {
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent-600);
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-light);
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.card:hover .cardFooter {
+  transform: translateX(2px);
+}
+
+.teal .cardFooter { color: #0d7a72; }
+.amber .cardFooter { color: #b45309; }
+.indigo .cardFooter { color: #4f46e5; }
+
+@media (max-width: 1100px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

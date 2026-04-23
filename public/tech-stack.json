@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-04-23",
+  "categories": {
+    "languages": {
+      "label": "Languages",
+      "color": "#3B82F6"
+    },
+    "frontend": {
+      "label": "Frontend",
+      "color": "#8B5CF6"
+    },
+    "backend": {
+      "label": "Backend",
+      "color": "#10B981"
+    },
+    "database": {
+      "label": "Database",
+      "color": "#F59E0B"
+    },
+    "ai": {
+      "label": "AI / ML",
+      "color": "#EC4899"
+    },
+    "infra": {
+      "label": "Infrastructure",
+      "color": "#6B7280"
+    },
+    "tools": {
+      "label": "Build Tools",
+      "color": "#14B8A6"
+    }
+  },
+  "projects": [
+    {
+      "id": "DEV-SAP_Portal",
+      "name": "DEV-SAP_Portal",
+      "path": "/Users/rakuluma/DEV-SAP_Portal",
+      "purpose": "",
+      "category": "Application",
+      "status": "running",
+      "ports": {},
+      "stack": {
+        "languages": [
+          "TypeScript"
+        ],
+        "frontend": [
+          "React"
+        ],
+        "tools": [
+          "Vite"
+        ]
+      }
+    },
+    {
+      "id": "DEV-SAP_Portal-DUB",
+      "name": "DEV-SAP_Portal-DUB",
+      "path": "/Users/rakuluma/DEV-SAP_Portal-DUB",
+      "purpose": "",
+      "category": "Application",
+      "status": "running",
+      "ports": {},
+      "stack": {
+        "languages": [
+          "TypeScript"
+        ],
+        "frontend": [
+          "React"
+        ],
+        "tools": [
+          "Vite"
+        ]
+      }
+    }
+  ],
+  "tech_details": {}
+}

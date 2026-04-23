@@ -1,0 +1,44 @@
+{
+  "project": "DEV-SAP_Portal-DUB",
+  "prompts": 34,
+  "api_calls": 769,
+  "active_hours": 1.69,
+  "input_tokens": 16676,
+  "output_tokens": 483880,
+  "total_tokens": 500556,
+  "cache_read": 69534671,
+  "cache_write": 1618350,
+  "lines_written": 10044,
+  "cost": 19.8,
+  "cost_per_prompt": 0.58,
+  "cost_per_line": 0.002,
+  "sessions": 2,
+  "model_breakdown": {
+    "haiku": {
+      "api_calls": 597,
+      "input_tokens": 16441,
+      "output_tokens": 292237,
+      "cache_read": 45773269,
+      "cache_write": 932207,
+      "cost": 7.22
+    },
+    "sonnet": {
+      "api_calls": 172,
+      "input_tokens": 235,
+      "output_tokens": 191643,
+      "cache_read": 23761402,
+      "cache_write": 686143,
+      "cost": 12.58
+    }
+  },
+  "tool_calls": {
+    "Bash": 70,
+    "Read": 92,
+    "Glob": 3,
+    "Edit": 164,
+    "Write": 13,
+    "TodoWrite": 3,
+    "Agent": 1
+  },
+  "updated_at": "2026-04-23T01:08:31.831817"
+}

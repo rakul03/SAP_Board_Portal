@@ -1,0 +1,515 @@
+{
+  "optionSets": [
+    {
+      "name": "sap_initiativecategory",
+      "displayName": "Initiative Category",
+      "description": "Category classification for initiatives",
+      "options": [
+        { "value": 100000000, "label": "AIs" },
+        { "value": 100000001, "label": "Enhancements" },
+        { "value": 100000002, "label": "Projects" },
+        { "value": 100000003, "label": "Licenses" },
+        { "value": 100000004, "label": "Services" },
+        { "value": 100000005, "label": "Securities" },
+        { "value": 100000006, "label": "Product Replacements" },
+        { "value": 100000007, "label": "Infrastructure" },
+        { "value": 100000008, "label": "Others" }
+      ]
+    },
+    {
+      "name": "sap_initiativestatus",
+      "displayName": "Initiative Status",
+      "description": "Current status of the initiative",
+      "options": [
+        { "value": 100000000, "label": "Active" },
+        { "value": 100000001, "label": "Pending" },
+        { "value": 100000002, "label": "Delayed" },
+        { "value": 100000003, "label": "Completed" }
+      ]
+    },
+    {
+      "name": "sap_initiativeurgency",
+      "displayName": "Initiative Urgency",
+      "description": "Urgency level of the initiative",
+      "options": [
+        { "value": 100000000, "label": "High" },
+        { "value": 100000001, "label": "Medium" },
+        { "value": 100000002, "label": "Low" }
+      ]
+    },
+    {
+      "name": "sap_initiativeseverity",
+      "displayName": "Initiative Severity",
+      "description": "Severity level of issues or events",
+      "options": [
+        { "value": 100000000, "label": "High" },
+        { "value": 100000001, "label": "Medium" },
+        { "value": 100000002, "label": "Low" }
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "name": "sap_sapinitiatives",
+      "displayName": "Initiative",
+      "pluralName": "Initiatives",
+      "logicalName": "sap_sapinitiative",
+      "entitySetName": "sap_sapinitiatives",
+      "description": "Strategic initiatives and projects",
+      "columns": [
+        {
+          "name": "sap_sapinitiativeid",
+          "displayName": "Initiative ID",
+          "type": "Guid",
+          "required": true,
+          "primaryKey": true,
+          "description": "Unique identifier for the initiative"
+        },
+        {
+          "name": "sap_initiativename",
+          "displayName": "Initiative Name",
+          "type": "Text",
+          "maxLength": 500,
+          "required": true,
+          "description": "Name of the initiative"
+        },
+        {
+          "name": "sap_demandnumber",
+          "displayName": "Demand Number",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "description": "External demand/ticket number"
+        },
+        {
+          "name": "sap_category",
+          "displayName": "Category",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativecategory",
+          "required": false,
+          "description": "Initiative category"
+        },
+        {
+          "name": "sap_description",
+          "displayName": "Description",
+          "type": "MultilineText",
+          "maxLength": 2000,
+          "required": false,
+          "description": "Full description of the initiative"
+        },
+        {
+          "name": "sap_currentprocess",
+          "displayName": "Current Process (As-Is)",
+          "type": "MultilineText",
+          "maxLength": 2000,
+          "required": false,
+          "description": "How the process works today"
+        },
+        {
+          "name": "sap_enhancedprocess",
+          "displayName": "Enhanced Process (To-Be)",
+          "type": "MultilineText",
+          "maxLength": 2000,
+          "required": false,
+          "description": "How it will work post-initiative"
+        },
+        {
+          "name": "sap_status",
+          "displayName": "Status",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativestatus",
+          "required": false,
+          "description": "Current status of the initiative"
+        },
+        {
+          "name": "sap_urgency",
+          "displayName": "Urgency",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativeurgency",
+          "required": false,
+          "description": "Urgency level"
+        },
+        {
+          "name": "sap_severity",
+          "displayName": "Severity",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativeseverity",
+          "required": false,
+          "description": "Severity level"
+        },
+        {
+          "name": "sap_budget",
+          "displayName": "Budget (AED)",
+          "type": "Decimal",
+          "precision": 18,
+          "scale": 2,
+          "required": false,
+          "description": "Budget amount in AED"
+        },
+        {
+          "name": "sap_budgettext",
+          "displayName": "Budget Display",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "description": "Budget display text (e.g., $2.4M)"
+        },
+        {
+          "name": "sap_implementer",
+          "displayName": "Implementer",
+          "type": "Text",
+          "maxLength": 200,
+          "required": false,
+          "description": "Implementing vendor/team"
+        },
+        {
+          "name": "sap_comments",
+          "displayName": "Comments",
+          "type": "MultilineText",
+          "maxLength": 1000,
+          "required": false,
+          "description": "Additional notes or context"
+        },
+        {
+          "name": "sap_startdate",
+          "displayName": "Log Date",
+          "type": "DateTime",
+          "required": false,
+          "description": "Last update log date"
+        },
+        {
+          "name": "sap_logdescription",
+          "displayName": "Log Description",
+          "type": "MultilineText",
+          "maxLength": 1000,
+          "required": false,
+          "description": "Latest log entry description"
+        },
+        {
+          "name": "sap_portfolioowner",
+          "displayName": "Principal Owner",
+          "type": "Lookup",
+          "targetTable": "sap_sapportfolioowners",
+          "required": false,
+          "description": "Reference to Portfolio Owner"
+        },
+        {
+          "name": "sap_externalinitiativeid",
+          "displayName": "External Initiative ID",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "unique": true,
+          "description": "External system identifier for API calls"
+        },
+        {
+          "name": "createdon",
+          "displayName": "Created On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record creation timestamp"
+        },
+        {
+          "name": "modifiedon",
+          "displayName": "Modified On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record last modified timestamp"
+        },
+        {
+          "name": "ownerid",
+          "displayName": "Owner",
+          "type": "Owner",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record owner (user/team)"
+        },
+        {
+          "name": "statecode",
+          "displayName": "State Code",
+          "type": "State",
+          "required": false,
+          "systemManaged": true,
+          "description": "Active/Inactive state"
+        },
+        {
+          "name": "statuscode",
+          "displayName": "Status Code",
+          "type": "Status",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record status"
+        }
+      ],
+      "relationships": [
+        {
+          "name": "sap_portfolioowner",
+          "targetTable": "sap_sapportfolioowners",
+          "cardinality": "ManyToOne",
+          "description": "Each initiative has one principal owner"
+        },
+        {
+          "name": "sap_sapauditlogs",
+          "targetTable": "sap_sapauditlogs",
+          "cardinality": "OneToMany",
+          "description": "Each initiative has multiple audit logs"
+        }
+      ]
+    },
+    {
+      "name": "sap_sapauditlogs",
+      "displayName": "Audit Log",
+      "pluralName": "Audit Logs",
+      "logicalName": "sap_sapauditlog",
+      "entitySetName": "sap_sapauditlogs",
+      "description": "Audit log entries for initiatives",
+      "columns": [
+        {
+          "name": "sap_sapauditlogid",
+          "displayName": "Audit Log ID",
+          "type": "Guid",
+          "required": true,
+          "primaryKey": true,
+          "description": "Unique identifier for the audit log"
+        },
+        {
+          "name": "sap_auditlogname",
+          "displayName": "Audit Log Name",
+          "type": "Text",
+          "maxLength": 200,
+          "required": true,
+          "description": "Name/title of the audit log entry"
+        },
+        {
+          "name": "sap_displayname",
+          "displayName": "Display Name",
+          "type": "Text",
+          "maxLength": 200,
+          "required": true,
+          "description": "Initiative name (display purpose)"
+        },
+        {
+          "name": "sap_initiative",
+          "displayName": "Initiative Reference",
+          "type": "Lookup",
+          "targetTable": "sap_sapinitiatives",
+          "required": false,
+          "description": "Reference to sap_sapinitiatives table"
+        },
+        {
+          "name": "sap_category",
+          "displayName": "Category",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativecategory",
+          "required": false,
+          "description": "Initiative category"
+        },
+        {
+          "name": "sap_status",
+          "displayName": "Status",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativestatus",
+          "required": false,
+          "description": "Status at time of log"
+        },
+        {
+          "name": "sap_logseverity",
+          "displayName": "Log Severity",
+          "type": "OptionSet",
+          "optionSet": "sap_initiativeseverity",
+          "required": false,
+          "description": "Severity of the log entry"
+        },
+        {
+          "name": "sap_eventdate",
+          "displayName": "Event Date",
+          "type": "DateTime",
+          "required": false,
+          "description": "Date/time of the logged event"
+        },
+        {
+          "name": "sap_sap_logdescription",
+          "displayName": "Log Description",
+          "type": "MultilineText",
+          "maxLength": 1000,
+          "required": false,
+          "description": "Detailed description of what happened"
+        },
+        {
+          "name": "sap_useremail",
+          "displayName": "User Email",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "description": "Email of the user who created the log"
+        },
+        {
+          "name": "sap_success",
+          "displayName": "Success",
+          "type": "Boolean",
+          "required": false,
+          "description": "Whether the action was successful"
+        },
+        {
+          "name": "sap_externalauditlogid",
+          "displayName": "External Audit Log ID",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "unique": true,
+          "description": "External system identifier"
+        },
+        {
+          "name": "createdon",
+          "displayName": "Created On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record creation timestamp"
+        },
+        {
+          "name": "modifiedon",
+          "displayName": "Modified On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record last modified timestamp"
+        },
+        {
+          "name": "ownerid",
+          "displayName": "Owner",
+          "type": "Owner",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record owner (user/team)"
+        },
+        {
+          "name": "statecode",
+          "displayName": "State Code",
+          "type": "State",
+          "required": false,
+          "systemManaged": true,
+          "description": "Active/Inactive state"
+        },
+        {
+          "name": "statuscode",
+          "displayName": "Status Code",
+          "type": "Status",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record status"
+        }
+      ],
+      "relationships": [
+        {
+          "name": "sap_initiative",
+          "targetTable": "sap_sapinitiatives",
+          "cardinality": "ManyToOne",
+          "description": "Multiple logs per initiative"
+        }
+      ]
+    },
+    {
+      "name": "sap_sapportfolioowners",
+      "displayName": "Portfolio Owner",
+      "pluralName": "Portfolio Owners",
+      "logicalName": "sap_sapportfolioowner",
+      "entitySetName": "sap_sapportfolioowners",
+      "description": "Portfolio owners/managers",
+      "columns": [
+        {
+          "name": "sap_sapportfolioownerid",
+          "displayName": "Portfolio Owner ID",
+          "type": "Guid",
+          "required": true,
+          "primaryKey": true,
+          "description": "Unique identifier for the portfolio owner"
+        },
+        {
+          "name": "sap_ownername",
+          "displayName": "Owner Name",
+          "type": "Text",
+          "maxLength": 200,
+          "required": true,
+          "unique": true,
+          "description": "Full name of the portfolio owner"
+        },
+        {
+          "name": "sap_ownername1",
+          "displayName": "Owner Name (Variant)",
+          "type": "Text",
+          "maxLength": 200,
+          "required": false,
+          "description": "Alternative name format"
+        },
+        {
+          "name": "sap_email",
+          "displayName": "Email",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "description": "Email address of the owner"
+        },
+        {
+          "name": "sap_externalportfolioownerid",
+          "displayName": "External Portfolio Owner ID",
+          "type": "Text",
+          "maxLength": 100,
+          "required": false,
+          "unique": true,
+          "description": "External system identifier"
+        },
+        {
+          "name": "createdon",
+          "displayName": "Created On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record creation timestamp"
+        },
+        {
+          "name": "modifiedon",
+          "displayName": "Modified On",
+          "type": "DateTime",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record last modified timestamp"
+        },
+        {
+          "name": "ownerid",
+          "displayName": "Owner",
+          "type": "Owner",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record owner (user/team)"
+        },
+        {
+          "name": "statecode",
+          "displayName": "State Code",
+          "type": "State",
+          "required": false,
+          "systemManaged": true,
+          "description": "Active/Inactive state"
+        },
+        {
+          "name": "statuscode",
+          "displayName": "Status Code",
+          "type": "Status",
+          "required": false,
+          "systemManaged": true,
+          "description": "Record status"
+        }
+      ],
+      "relationships": [
+        {
+          "name": "sap_sapinitiatives",
+          "targetTable": "sap_sapinitiatives",
+          "cardinality": "OneToMany",
+          "description": "One owner can manage multiple initiatives"
+        }
+      ]
+    }
+  ]
+}

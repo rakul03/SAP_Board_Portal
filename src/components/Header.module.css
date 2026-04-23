@@ -1,0 +1,244 @@
+.header {
+  position: sticky;
+  top: 0;
+  left: var(--sidebar-collapsed);
+  right: 0;
+  z-index: 30;
+  height: var(--header-height);
+  width: auto;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition:
+    left var(--transition-base),
+    right var(--transition-base);
+}
+
+.header[data-sidebar='expanded'] {
+  left: var(--sidebar-expanded);
+}
+
+.header[data-mobile='true'],
+.header[data-mobile='true'][data-sidebar='expanded'] {
+  left: 0;
+  right: 0;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hamburger {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-base);
+}
+.hamburger:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.hamburgerActive {
+  background: var(--accent-50);
+  color: var(--accent-600);
+  transform: scale(1.03);
+}
+
+.brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.brandAccent {
+  background: var(--accent-600);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.brandRest {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connectionPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.connectionOnline {
+  background: color-mix(in srgb, #10b981 14%, var(--bg-primary));
+  color: #047857;
+  border-color: color-mix(in srgb, #10b981 26%, transparent);
+}
+
+.connectionOffline {
+  background: color-mix(in srgb, #ef4444 14%, var(--bg-primary));
+  color: #b91c1c;
+  border-color: color-mix(in srgb, #ef4444 26%, transparent);
+}
+
+.connectionDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
+}
+
+.connectionState {
+  opacity: 0.9;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.themeToggle {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+.themeToggle:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dewa {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #007564, #009685);
+  color: #fff;
+  border-radius: 6px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-600);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  border: 1.5px solid var(--accent-50);
+}
+
+.userChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  background: var(--bg-primary);
+}
+
+.userText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.userMail {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+@media (max-width: 640px) {
+  .dewa {
+    display: none;
+  }
+  .brandRest {
+    display: none;
+  }
+  .userChip {
+    padding-right: 4px;
+  }
+  .userText {
+    display: none;
+  }
+  .hamburger {
+    width: 30px;
+    height: 30px;
+  }
+  .themeToggle {
+    width: 30px;
+    height: 30px;
+  }
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+  .left {
+    gap: 8px;
+  }
+  .right {
+    gap: 6px;
+  }
+}

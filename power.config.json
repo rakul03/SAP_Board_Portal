@@ -1,0 +1,44 @@
+{
+  "version": "1.0",
+  "appId": "a590025f-b36a-4c16-b534-3a16670e3bb9",
+  "appDisplayName": "DEV-SAP_Portal",
+  "region": "prod",
+  "environmentId": "7f8f5b90-2d8e-e620-92cf-cc809f93e90a",
+  "description": " ",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "localAppUrl": "http://localhost:3000",
+  "logoPath": "Default",
+  "connectionReferences": {
+    "df87f6f5-1436-444a-b5c4-f08bc641ffe5": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": [
+        "office365users"
+      ],
+      "dataSets": {}
+    }
+  },
+  "databaseReferences": {
+    "default.cds": {
+      "dataSources": {
+        "initiative_saps": {
+          "entitySetName": "sap_initiative_saps",
+          "logicalName": "sap_initiative_sap",
+          "isHidden": false
+        },
+        "auditlog_saps": {
+          "entitySetName": "sap_auditlog_saps",
+          "logicalName": "sap_auditlog_sap",
+          "isHidden": false
+        },
+        "portfolioowner_saps": {
+          "entitySetName": "sap_portfolioowner_saps",
+          "logicalName": "sap_portfolioowner_sap",
+          "isHidden": false
+        }
+      },
+      "environmentVariableName": ""
+    }
+  }
+}
