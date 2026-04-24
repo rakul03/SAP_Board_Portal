@@ -1,37 +1,37 @@
 {
   "project": "DEV-SAP_Portal-DUB",
-  "prompts": 66,
-  "api_calls": 1565,
-  "active_hours": 4.22,
-  "input_tokens": 70504,
-  "output_tokens": 910045,
-  "total_tokens": 980549,
-  "cache_read": 120279006,
-  "cache_write": 5210530,
-  "lines_written": 13892,
-  "cost": 45.93,
-  "cost_per_prompt": 0.7,
-  "cost_per_line": 0.0033,
-  "sessions": 10,
+  "prompts": 78,
+  "api_calls": 1788,
+  "active_hours": 5.18,
+  "input_tokens": 72261,
+  "output_tokens": 1009255,
+  "total_tokens": 1081516,
+  "cache_read": 137944259,
+  "cache_write": 6199700,
+  "lines_written": 15031,
+  "cost": 51.45,
+  "cost_per_prompt": 0.66,
+  "cost_per_line": 0.0034,
+  "sessions": 11,
   "model_breakdown": {
     "haiku": {
-      "api_calls": 932,
-      "input_tokens": 19426,
-      "output_tokens": 432266,
-      "cache_read": 64938542,
-      "cache_write": 2481461,
-      "cost": 11.78
+      "api_calls": 1141,
+      "input_tokens": 21162,
+      "output_tokens": 512530,
+      "cache_read": 81117908,
+      "cache_write": 2860538,
+      "cost": 14.27
     },
     "sonnet": {
-      "api_calls": 631,
-      "input_tokens": 51078,
-      "output_tokens": 477779,
-      "cache_read": 55340464,
-      "cache_write": 2729069,
-      "cost": 34.16
+      "api_calls": 644,
+      "input_tokens": 51099,
+      "output_tokens": 496725,
+      "cache_read": 56826351,
+      "cache_write": 3339162,
+      "cost": 37.17
     },
     "opus": {
-      "api_calls": 2,
+      "api_calls": 3,
       "input_tokens": 0,
       "output_tokens": 0,
       "cache_read": 0,
@@ -40,16 +40,16 @@
     }
   },
   "tool_calls": {
-    "Bash": 164,
-    "Read": 259,
+    "Bash": 189,
+    "Read": 284,
     "Glob": 3,
-    "Edit": 260,
-    "Write": 27,
+    "Edit": 288,
+    "Write": 30,
     "EnterPlanMode": 7,
     "Agent": 10,
     "ExitPlanMode": 7,
-    "AskUserQuestion": 2,
-    "TodoWrite": 3
+    "AskUserQuestion": 3,
+    "TodoWrite": 6
   },
-  "updated_at": "2026-04-23T13:47:32.490744"
+  "updated_at": "2026-04-24T13:13:10.432108"
 }

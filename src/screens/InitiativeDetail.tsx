@@ -277,6 +277,32 @@ ${initiative.comments || 'No content provided.'}
             />
           </dl>
         </div>
+
+        {initiative.category === 'Licenses' && (
+          <div className={styles.detailsCol}>
+            <h2 className={styles.sectionTitle}>License Details</h2>
+            <dl className={styles.detailList}>
+              <DetailItem
+                icon={<Hash size={14} />}
+                label="Contract ID"
+                value={initiative.contractId || '—'}
+                mono
+              />
+              <DetailItem
+                icon={<Calendar size={14} />}
+                label="Renewal Date"
+                value={initiative.renewalDate ? formatDate(initiative.renewalDate) : '—'}
+                mono
+              />
+              <DetailItem
+                icon={<Calendar size={14} />}
+                label="Expiry Date"
+                value={initiative.expiryDate ? formatDate(initiative.expiryDate) : '—'}
+                mono
+              />
+            </dl>
+          </div>
+        )}
       </section>
 
       <section className={styles.cardsStack}>

@@ -55,7 +55,10 @@ export interface Sap_initiative_sapsBase {
   sap_initiative_sapid: string;
   sap_initiativename: string;
   "sap_Owner_Name@odata.bind"?: string;
+  sap_sap_contractid?: string;
   sap_sap_createdemail?: string;
+  sap_sap_expirydate?: string;
+  sap_sap_renewaldate?: string;
   sap_status?: Sap_initiative_sapssap_status;
   sap_urgency?: Sap_initiative_sapssap_urgency;
   statecode: Sap_initiative_sapsstatecode;

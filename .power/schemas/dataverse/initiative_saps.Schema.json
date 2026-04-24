@@ -361,6 +361,14 @@
           "x-ms-read-only": true,
           "maxLength": 850
         },
+        "sap_sap_contractid": {
+          "type": "string",
+          "title": "sap_contractid",
+          "x-ms-dataverse-attribute": "sap_sap_contractid",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "sap_sap_contractid",
+          "maxLength": 100
+        },
         "sap_sap_createdemail": {
           "type": "string",
           "title": "sap_createdemail",
@@ -368,6 +376,20 @@
           "x-ms-dataverse-type": "StringType",
           "x-ms-schema-name": "sap_sap_createdemail",
           "maxLength": 100
+        },
+        "sap_sap_expirydate": {
+          "type": "string",
+          "title": "sap_expirydate",
+          "x-ms-dataverse-attribute": "sap_sap_expirydate",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "sap_sap_expirydate"
+        },
+        "sap_sap_renewaldate": {
+          "type": "string",
+          "title": "sap_renewaldate",
+          "x-ms-dataverse-attribute": "sap_sap_renewaldate",
+          "x-ms-dataverse-type": "DateTimeType",
+          "x-ms-schema-name": "sap_sap_renewaldate"
         },
         "sap_status": {
           "type": "string",

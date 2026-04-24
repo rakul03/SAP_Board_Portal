@@ -32,6 +32,9 @@ function emptyValues(defaultCategory: string = 'Projects'): FormValues {
     logDate: new Date().toISOString(),
     logDescription: '',
     severity: 'Low',
+    renewalDate: '',
+    expiryDate: '',
+    contractId: '',
   };
 }
 
@@ -64,6 +67,9 @@ export function InitiativeForm({ initial, onSubmit, onCancel, selectedCategory }
       logDate: toDateInput(initial.logDate),
       logDescription: initial.logDescription,
       severity: initial.severity,
+      renewalDate: initial.renewalDate ? toDateInput(initial.renewalDate) : '',
+      expiryDate: initial.expiryDate ? toDateInput(initial.expiryDate) : '',
+      contractId: initial.contractId || '',
     };
   });
 
@@ -207,6 +213,40 @@ export function InitiativeForm({ initial, onSubmit, onCancel, selectedCategory }
               ))}
             </select>
           </div>
+
+          {values.category === 'Licenses' && (
+            <>
+              <div className={styles.field}>
+                <label className={styles.label}>Contract ID</label>
+                <input
+                  className={styles.input}
+                  value={values.contractId || ''}
+                  onChange={(e) => update('contractId', e.target.value)}
+                  placeholder="e.g. CNT-2024-001"
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>Renewal Date</label>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={values.renewalDate || ''}
+                  onChange={(e) => update('renewalDate', e.target.value)}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>Expiry Date</label>
+                <input
+                  className={styles.input}
+                  type="date"
+                  value={values.expiryDate || ''}
+                  onChange={(e) => update('expiryDate', e.target.value)}
+                />
+              </div>
+            </>
+          )}
 
         </section>
 

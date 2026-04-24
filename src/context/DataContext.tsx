@@ -270,6 +270,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
             severity: 'Low' as Severity,
             updatedAt: item.modifiedon || new Date().toISOString(),
             createdByEmail: item.sap_sap_createdemail || item.sap_createdemail || '',
+            renewalDate: item.sap_sap_renewaldate || '',
+            expiryDate: item.sap_sap_expirydate || '',
+            contractId: item.sap_sap_contractid || '',
           };
         }));
       } else if (!initData?.success) {
@@ -358,6 +361,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           sap_enhancedprocesstobe: data.enhancedProcess || undefined,
           sap_comments: data.comments || undefined,
           sap_implementer: data.implementer || undefined,
+          sap_sap_contractid: data.contractId || undefined,
+          sap_sap_renewaldate: data.renewalDate || undefined,
+          sap_sap_expirydate: data.expiryDate || undefined,
         };
 
         const createRecord = (includeCreatedEmail: boolean) => ({
@@ -434,6 +440,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           severity: 'Low',
           updatedAt: new Date().toISOString(),
           createdByEmail: currentUserEmail,
+          renewalDate: data.renewalDate,
+          expiryDate: data.expiryDate,
+          contractId: data.contractId,
         };
 
         setInitiatives((prev) => [newInitiative, ...prev]);
@@ -478,6 +487,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (data.enhancedProcess) update.sap_enhancedprocesstobe = data.enhancedProcess;
         if (data.comments) update.sap_comments = data.comments;
         if (data.implementer) update.sap_implementer = data.implementer;
+        if (data.contractId) update.sap_sap_contractid = data.contractId;
+        if (data.renewalDate) update.sap_sap_renewaldate = data.renewalDate;
+        if (data.expiryDate) update.sap_sap_expirydate = data.expiryDate;
 
         // Handle owner lookup
         if (data.owner && owners.length > 0) {

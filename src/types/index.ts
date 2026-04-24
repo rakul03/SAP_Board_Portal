@@ -49,6 +49,9 @@ export interface Initiative {
   severity: Severity;
   updatedAt: string;
   createdByEmail?: string;
+  renewalDate?: string;
+  expiryDate?: string;
+  contractId?: string;
 }
 
 export interface AuditLog {
