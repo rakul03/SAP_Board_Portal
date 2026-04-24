@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { Gauge } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import type { HealthMetrics } from '../hooks/useHealthScore';
 import styles from '../../Dashboard.module.css';
 
@@ -37,10 +39,29 @@ export function HealthIndicator({ metrics }: HealthIndicatorProps) {
 
         <motion.div
           className={styles.healthScoreCircle}
+          style={{ '--health-accent': status.color } as CSSProperties}
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
+          whileHover={{ scale: 1.08, rotate: -4 }}
+          whileTap={{ scale: 0.98 }}
           transition={{ delay: 0.32, duration: 0.5, ease: 'backOut' }}
+          role="img"
+          aria-label={`Portfolio health ${metrics.overall} out of 100, ${status.label}`}
         >
+          <motion.span
+            className={styles.healthScoreAura}
+            aria-hidden="true"
+            animate={{ scale: [1, 1.08, 1], opacity: [0.35, 0.7, 0.35] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.span
+            className={styles.healthScoreIcon}
+            aria-hidden="true"
+            animate={{ y: [0, -2, 0], rotate: [0, 6, 0] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <Gauge size={16} />
+          </motion.span>
           <div className={styles.healthScoreValue} style={{ color: status.color }}>
             {metrics.overall}
           </div>

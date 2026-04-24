@@ -1,14 +1,14 @@
 {
-  "name": "sap_initiative_sap",
-  "title": "Initiative_SAPS",
+  "name": "sap_appuser_sap",
+  "title": "appuser_saps",
   "schema": {
     "type": "array",
     "items": {
       "type": "object",
       "x-ms-dataverse-entity": true,
-      "x-ms-dataverse-entityset": "sap_initiative_saps",
-      "x-ms-dataverse-primary-id": "sap_initiative_sapid",
-      "x-ms-dataverse-primary-name": "sap_initiativename",
+      "x-ms-dataverse-entityset": "sap_appuser_saps",
+      "x-ms-dataverse-primary-id": "sap_appuser_sapid",
+      "x-ms-dataverse-primary-name": "sap_sap_useremail",
       "properties": {
         "createdby": {
           "type": "string",
@@ -217,228 +217,67 @@
           "x-ms-schema-name": "OwningUser",
           "x-ms-read-only": true
         },
-        "sap_budgetaed": {
+        "sap_appuser_sapid": {
           "type": "string",
-          "title": "Budget (AED)",
-          "x-ms-dataverse-attribute": "sap_budgetaed",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_BudgetAED",
-          "maxLength": 100
-        },
-        "sap_category": {
-          "type": "string",
-          "title": "Category",
-          "x-ms-dataverse-attribute": "sap_category",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "sap_Category",
-          "enum": [
-            "AIs",
-            "Enhancements",
-            "Projects",
-            "Licenses",
-            "Services",
-            "Securities",
-            "Product Replacements",
-            "Infrastructure",
-            "Others"
-          ],
-          "x-ms-enum-values": [
-            100000000,
-            100000001,
-            100000002,
-            100000003,
-            100000004,
-            100000005,
-            100000006,
-            100000007,
-            100000008
-          ],
-          "Color": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-          ],
-          "x-ms-optionsetmetadataid": "0357217e-b53c-f111-bec7-6045bdff18e3",
-          "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Category",
-          "x-ms-optionSetType": "Picklist"
-        },
-        "sap_categoryname": {
-          "type": "string",
-          "title": "sap_categoryname",
-          "x-ms-dataverse-attribute": "sap_categoryname",
-          "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "sap_categoryName",
-          "x-ms-read-only": true
-        },
-        "sap_comments": {
-          "type": "string",
-          "title": "Comments",
-          "x-ms-dataverse-attribute": "sap_comments",
-          "x-ms-dataverse-type": "MemoType",
-          "x-ms-schema-name": "sap_Comments",
-          "maxLength": 2000
-        },
-        "sap_currentprocessasis": {
-          "type": "string",
-          "title": "Current Process (As-Is)",
-          "x-ms-dataverse-attribute": "sap_currentprocessasis",
-          "x-ms-dataverse-type": "MemoType",
-          "x-ms-schema-name": "sap_CurrentProcessAsIs",
-          "maxLength": 2000
-        },
-        "sap_demandnumber": {
-          "type": "string",
-          "title": "Demand Number",
-          "x-ms-dataverse-attribute": "sap_demandnumber",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_DemandNumber",
-          "maxLength": 100
-        },
-        "sap_description": {
-          "type": "string",
-          "title": "Description",
-          "x-ms-dataverse-attribute": "sap_description",
-          "x-ms-dataverse-type": "MemoType",
-          "x-ms-schema-name": "sap_Description",
-          "maxLength": 2000
-        },
-        "sap_enhancedprocesstobe": {
-          "type": "string",
-          "title": "Enhanced Process (To-Be)",
-          "x-ms-dataverse-attribute": "sap_enhancedprocesstobe",
-          "x-ms-dataverse-type": "MemoType",
-          "x-ms-schema-name": "sap_EnhancedProcessToBe",
-          "maxLength": 2000
-        },
-        "sap_implementer": {
-          "type": "string",
-          "title": "Implementer",
-          "x-ms-dataverse-attribute": "sap_implementer",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_Implementer",
-          "maxLength": 100
-        },
-        "sap_initiative_sapid": {
-          "type": "string",
-          "title": "Initiative_SAP",
-          "x-ms-dataverse-attribute": "sap_initiative_sapid",
+          "title": "appuser_sap",
+          "x-ms-dataverse-attribute": "sap_appuser_sapid",
           "x-ms-dataverse-type": "UniqueidentifierType",
-          "x-ms-schema-name": "sap_Initiative_SAPId",
+          "x-ms-schema-name": "sap_appuser_sapId",
           "x-ms-dataverse-primary-id": true,
           "required": true,
           "x-ms-keyType": "primary"
         },
-        "sap_initiativename": {
+        "sap_sap_displayname": {
           "type": "string",
-          "title": "Initiative Name",
-          "x-ms-dataverse-attribute": "sap_initiativename",
+          "title": "sap_displayname",
+          "x-ms-dataverse-attribute": "sap_sap_displayname",
           "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_InitiativeName",
+          "x-ms-schema-name": "sap_sap_displayname",
+          "maxLength": 100
+        },
+        "sap_sap_role": {
+          "type": "string",
+          "title": "sap_role",
+          "x-ms-dataverse-attribute": "sap_sap_role",
+          "x-ms-dataverse-type": "PicklistType",
+          "x-ms-schema-name": "sap_sap_role",
+          "enum": [
+            "User",
+            "Manager",
+            "Admin"
+          ],
+          "x-ms-enum-values": [
+            100000000,
+            100000001,
+            100000002
+          ],
+          "Color": [
+            null,
+            null,
+            null
+          ],
+          "x-ms-optionsetmetadataid": "0317ae3c-f73e-f111-bec7-6045bdff18e3",
+          "x-ms-isGlobal": false,
+          "x-ms-optionsetdisplayname": "sap_role",
+          "x-ms-optionSetType": "Picklist"
+        },
+        "sap_sap_rolename": {
+          "type": "string",
+          "title": "sap_sap_rolename",
+          "x-ms-dataverse-attribute": "sap_sap_rolename",
+          "x-ms-dataverse-type": "VirtualType",
+          "x-ms-schema-name": "sap_sap_roleName",
+          "x-ms-read-only": true
+        },
+        "sap_sap_useremail": {
+          "type": "string",
+          "title": "sap_useremail",
+          "x-ms-dataverse-attribute": "sap_sap_useremail",
+          "x-ms-dataverse-type": "StringType",
+          "x-ms-schema-name": "sap_sap_useremail",
           "x-ms-dataverse-primary-name": true,
           "required": true,
           "maxLength": 850
-        },
-        "sap_owner_name": {
-          "type": "string",
-          "title": "Portfolio Owner",
-          "x-ms-dataverse-attribute": "sap_owner_name",
-          "x-ms-dataverse-type": "LookupType",
-          "x-ms-schema-name": "sap_Owner_Name"
-        },
-        "sap_owner_namename": {
-          "type": "string",
-          "title": "sap_owner_namename",
-          "x-ms-dataverse-attribute": "sap_owner_namename",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_Owner_NameName",
-          "x-ms-read-only": true,
-          "maxLength": 850
-        },
-        "sap_sap_createdemail": {
-          "type": "string",
-          "title": "sap_createdemail",
-          "x-ms-dataverse-attribute": "sap_sap_createdemail",
-          "x-ms-dataverse-type": "StringType",
-          "x-ms-schema-name": "sap_sap_createdemail",
-          "maxLength": 100
-        },
-        "sap_status": {
-          "type": "string",
-          "title": "Status",
-          "x-ms-dataverse-attribute": "sap_status",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "sap_Status",
-          "enum": [
-            "Active",
-            "Pending",
-            "Delayed",
-            "Completed"
-          ],
-          "x-ms-enum-values": [
-            100000000,
-            100000001,
-            100000003,
-            100000002
-          ],
-          "Color": [
-            null,
-            null,
-            null,
-            null
-          ],
-          "x-ms-optionsetmetadataid": "1757217e-b53c-f111-bec7-6045bdff18e3",
-          "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Status",
-          "x-ms-optionSetType": "Picklist"
-        },
-        "sap_statusname": {
-          "type": "string",
-          "title": "sap_statusname",
-          "x-ms-dataverse-attribute": "sap_statusname",
-          "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "sap_statusName",
-          "x-ms-read-only": true
-        },
-        "sap_urgency": {
-          "type": "string",
-          "title": "Urgency",
-          "x-ms-dataverse-attribute": "sap_urgency",
-          "x-ms-dataverse-type": "PicklistType",
-          "x-ms-schema-name": "sap_Urgency",
-          "enum": [
-            "Low",
-            "Medium",
-            "High"
-          ],
-          "x-ms-enum-values": [
-            100000000,
-            100000001,
-            100000002
-          ],
-          "Color": [
-            null,
-            null,
-            null
-          ],
-          "x-ms-optionsetmetadataid": "0a57217e-b53c-f111-bec7-6045bdff18e3",
-          "x-ms-isGlobal": false,
-          "x-ms-optionsetdisplayname": "Urgency",
-          "x-ms-optionSetType": "Picklist"
-        },
-        "sap_urgencyname": {
-          "type": "string",
-          "title": "sap_urgencyname",
-          "x-ms-dataverse-attribute": "sap_urgencyname",
-          "x-ms-dataverse-type": "VirtualType",
-          "x-ms-schema-name": "sap_urgencyName",
-          "x-ms-read-only": true
         },
         "statecode": {
           "type": "string",
@@ -459,7 +298,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "689e8387-c23b-f111-bec6-7ced8dd6e724",
+          "x-ms-optionsetmetadataid": "158c2ff5-e83e-f111-bec7-7c1e527e3bde",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Status",
           "x-ms-optionSetType": "State"
@@ -490,7 +329,7 @@
             null,
             null
           ],
-          "x-ms-optionsetmetadataid": "729e8387-c23b-f111-bec6-7ced8dd6e724",
+          "x-ms-optionsetmetadataid": "1f8c2ff5-e83e-f111-bec7-7c1e527e3bde",
           "x-ms-isGlobal": false,
           "x-ms-optionsetdisplayname": "Status Reason",
           "x-ms-optionSetType": "Status"
@@ -536,8 +375,8 @@
         "owneridtype",
         "owneridyominame",
         "owningbusinessunitname",
-        "sap_initiative_sapid",
-        "sap_initiativename",
+        "sap_appuser_sapid",
+        "sap_sap_useremail",
         "statecode"
       ]
     }

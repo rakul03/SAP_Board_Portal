@@ -38,6 +38,9 @@ const AuditLogs = lazy(() =>
 const Dashboard = lazy(() =>
   import('./screens/Dashboard').then((m) => ({ default: m.Dashboard })),
 );
+const UserManagement = lazy(() =>
+  import('./screens/UserManagement').then((m) => ({ default: m.UserManagement })),
+);
 function ScreenFallback() {
   return <div className={styles.fallback} aria-busy="true" />;
 }
@@ -57,7 +60,7 @@ function useIsMobile(): boolean {
 }
 
 function AppShell() {
-  const { createInitiative } = useData();
+  const { createInitiative, userRole } = useData();
   const { showToast } = useToast();
   const [tab, setTab] = useState<TabId>('home');
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -166,6 +169,7 @@ function AppShell() {
                   )}
                   {tab === 'audit-logs' && <AuditLogs />}
                   {tab === 'dashboard' && <Dashboard />}
+                  {tab === 'admin' && userRole === 'Admin' && <UserManagement />}
                 </Suspense>
               )}
             </motion.div>

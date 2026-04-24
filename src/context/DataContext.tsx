@@ -1,11 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { AuditLog, Category, Initiative, Owner, Severity, Status, Urgency } from '../types';
+import type { AuditLog, Category, Initiative, Owner, Role, Severity, Status, Urgency } from '../types';
 // Generated services - DIRECT IMPORTS ONLY
 import { Office365UsersService } from '../generated/services/Office365UsersService';
 import { Sap_initiative_sapsService } from '../generated/services/Sap_initiative_sapsService';
 import { Sap_auditlog_sapsService } from '../generated/services/Sap_auditlog_sapsService';
 import { Sap_portfolioowner_sapsService } from '../generated/services/Sap_portfolioowner_sapsService';
+import { Sap_favorite_sapsService } from '../generated/services/Sap_favorite_sapsService';
+import { Sap_appuser_sapsService } from '../generated/services/Sap_appuser_sapsService';
 import type { GraphUser_V1 } from '../generated/models/Office365UsersModel';
 import {
   Sap_initiative_sapssap_category,
@@ -19,11 +21,17 @@ interface CurrentUser {
   jobTitle: string;
 }
 
+const normalizeEmail = (value?: string | null): string =>
+  (value || '').trim().toLowerCase();
+
 interface DataContextValue {
   initiatives: Initiative[];
   auditLogs: AuditLog[];
   owners: Owner[];
   currentUser: CurrentUser | null;
+  userRole: Role;
+  hasAppAccess: boolean;
+  accessMessage: string | null;
   favorites: string[];
   createInitiative: (data: Omit<Initiative, 'id' | 'updatedAt'>) => Promise<Initiative | null>;
   updateInitiative: (id: string, data: Partial<Initiative>) => Promise<void>;
@@ -32,7 +40,7 @@ interface DataContextValue {
   deleteAuditLog: (id: string) => Promise<void>;
   addOwner: (name: string, email?: string) => Promise<Owner | null>;
   removeOwner: (id: string) => Promise<void>;
-  toggleFavorite: (id: string) => void;
+  toggleFavorite: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
   isLoading: boolean;
 }
@@ -131,20 +139,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [userRole, setUserRole] = useState<Role>('User');
+  const [hasAppAccess, setHasAppAccess] = useState(false);
+  const [accessMessage, setAccessMessage] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshInFlight = useRef(false);
+
+  const currentUserEmail = normalizeEmail(currentUser?.mail);
 
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
       console.log('🔄 DataContext: Loading from Dataverse...');
 
-      // Load all three tables in parallel — no $select to avoid virtual-field OData errors
-      const [initiativesResult, auditLogsResult, ownersResult, profileResult] = await Promise.allSettled([
+      // Load all tables in parallel — no $select to avoid virtual-field OData errors
+      const [initiativesResult, auditLogsResult, ownersResult, profileResult, favoritesResult, appUsersResult] = await Promise.allSettled([
         Sap_initiative_sapsService.getAll({ filter: 'statecode eq 0' }),
         Sap_auditlog_sapsService.getAll({ filter: 'statecode eq 0' }),
         Sap_portfolioowner_sapsService.getAll({ filter: 'statecode eq 0' }),
         Office365UsersService.MyProfile_V2('displayName,mail,userPrincipalName,jobTitle'),
+        Sap_favorite_sapsService.getAll({ filter: 'statecode eq 0' }),
+        Sap_appuser_sapsService.getAll({ filter: 'statecode eq 0' }),
       ]);
 
       console.log('🔍 Raw Dataverse results:', {
@@ -152,14 +168,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
         auditLogs: { status: auditLogsResult.status },
         owners: { status: ownersResult.status },
         profile: { status: profileResult.status },
+        favorites: { status: favoritesResult.status },
+        appUsers: { status: appUsersResult.status },
       });
 
       const initData = initiativesResult.status === 'fulfilled' ? initiativesResult.value : null;
       const logsData = auditLogsResult.status === 'fulfilled' ? auditLogsResult.value : null;
       const ownersData = ownersResult.status === 'fulfilled' ? ownersResult.value : null;
       const profileData = profileResult.status === 'fulfilled' ? profileResult.value : null;
+      const favoritesData = favoritesResult.status === 'fulfilled' ? favoritesResult.value : null;
+      const appUsersData = appUsersResult.status === 'fulfilled' ? appUsersResult.value : null;
 
       const profile: GraphUser_V1 | undefined = profileData?.data;
+      const profileEmail = normalizeEmail(profile?.mail || profile?.userPrincipalName);
       const nextCurrentUser: CurrentUser | null = profile
         ? {
             displayName: profile.displayName || profile.userPrincipalName || 'User',
@@ -169,6 +190,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
         : null;
 
       setCurrentUser(nextCurrentUser);
+      setHasAppAccess(false);
+      setAccessMessage(null);
+
+      // Resolve role for current user
+      const roleCodeMap: Record<number, Role> = {
+        100000000: 'User',
+        100000001: 'Manager',
+        100000002: 'Admin',
+      };
+      let nextRole: Role = 'User';
+      let matchedAppUser = false;
+      if (appUsersData?.success && Array.isArray(appUsersData.data) && profileEmail) {
+        const match = (appUsersData.data as any[]).find(
+          (u) => normalizeEmail(u.sap_sap_useremail) === profileEmail
+        );
+        if (match?.sap_sap_role !== undefined) {
+          nextRole = roleCodeMap[match.sap_sap_role] ?? 'User';
+        }
+        matchedAppUser = !!match;
+        console.log('🔐 Loaded role for user:', { email: profileEmail, role: nextRole });
+      }
+      setUserRole(nextRole);
+      setHasAppAccess(matchedAppUser);
+      if (!matchedAppUser) {
+        setAccessMessage(
+          'Your account is not registered for this SAP Portal. Please contact the portal administrator to request access.'
+        );
+      }
+
+      // Load favorites for current user
+      const nextFavorites: string[] = [];
+      if (favoritesData?.success && Array.isArray(favoritesData.data) && profileEmail) {
+        const userFavorites = (favoritesData.data as any[]).filter(
+          (fav) => normalizeEmail(fav.sap_useremail) === profileEmail
+        );
+        nextFavorites.push(...userFavorites.map((fav: any) => fav._sap_sap_initiative_value || '').filter(Boolean));
+        console.log('⭐ Loaded favorites for user:', { email: profileEmail, count: nextFavorites.length });
+      } else if (!favoritesData?.success) {
+        console.warn('⚠️ Failed to load favorites:', favoritesData?.error);
+      }
 
       // Build owner lookup map: GUID → display name, resolved BEFORE mapping initiatives
       const ownerMap = new Map<string, string>();
@@ -208,6 +269,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             logDescription: '',
             severity: 'Low' as Severity,
             updatedAt: item.modifiedon || new Date().toISOString(),
+            createdByEmail: item.sap_sap_createdemail || item.sap_createdemail || '',
           };
         }));
       } else if (!initData?.success) {
@@ -245,18 +307,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
         initiatives: inits.length,
         auditLogs: logs.length,
         owners: owns.length,
+        favorites: nextFavorites.length,
       });
 
       setInitiatives(inits);
       setAuditLogs(logs);
       setOwners(owns);
-      setFavorites([]);
+      setFavorites(nextFavorites);
     } catch (error) {
       console.error('❌ DataContext: Unexpected error loading from Dataverse:', error);
       setInitiatives([]);
       setAuditLogs([]);
       setOwners([]);
       setCurrentUser(null);
+      setUserRole('User');
+      setHasAppAccess(false);
+      setAccessMessage('Could not load your user profile. Please contact the portal administrator.');
       setFavorites([]);
     } finally {
       setIsLoading(false);
@@ -272,11 +338,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       try {
         console.log('💾 Creating initiative in Dataverse...');
 
+        if (!currentUserEmail) {
+          throw new Error('Unable to determine the current user email.');
+        }
+
         const categoryCode = mapCategoryToCode(data.category) as keyof typeof Sap_initiative_sapssap_category;
         const statusCode = mapStatusToCode(data.status) as keyof typeof Sap_initiative_sapssap_status;
         const urgencyCode = mapUrgencyToCode(data.urgency) as keyof typeof Sap_initiative_sapssap_urgency;
 
-        const record: any = {
+        const baseRecord: any = {
           sap_initiativename: data.name,
           sap_category: categoryCode,
           sap_description: data.description || undefined,
@@ -290,20 +360,54 @@ export function DataProvider({ children }: { children: ReactNode }) {
           sap_implementer: data.implementer || undefined,
         };
 
+        const createRecord = (includeCreatedEmail: boolean) => ({
+          ...baseRecord,
+          ...(includeCreatedEmail ? { sap_sap_createdemail: currentUserEmail } : {}),
+        });
+
         // Add owner lookup if provided
-        if (data.owner && owners.length > 0) {
+        const ownerBinding = (() => {
+          if (!data.owner || owners.length === 0) return undefined;
           const owner = owners.find((o) => o.name === data.owner);
           if (owner?.id) {
-            record['sap_Owner_Name@odata.bind'] = `/sap_portfolioowner_saps(${owner.id})`;
-            console.log('✅ Owner lookup resolved:', { name: owner.name, id: owner.id, binding: record['sap_Owner_Name@odata.bind'] });
-          } else {
-            console.warn('⚠️ Owner found but has no ID:', owner);
+            console.log('✅ Owner lookup resolved:', {
+              name: owner.name,
+              id: owner.id,
+              binding: `/sap_portfolioowner_saps(${owner.id})`,
+            });
+            return `/sap_portfolioowner_saps(${owner.id})`;
+          }
+          console.warn('⚠️ Owner found but has no ID:', owner);
+          return undefined;
+        })();
+
+        const recordWithEmail: any = createRecord(true);
+        const recordWithoutEmail: any = createRecord(false);
+
+        if (data.owner && owners.length > 0) {
+          if (ownerBinding) {
+            recordWithEmail['sap_Owner_Name@odata.bind'] = ownerBinding;
+            recordWithoutEmail['sap_Owner_Name@odata.bind'] = ownerBinding;
           }
         }
 
-        console.log('📤 Sending to Dataverse (full):', JSON.stringify(record));
+        console.log('📤 Sending to Dataverse (full):', JSON.stringify(recordWithEmail));
 
-        const result = await Sap_initiative_sapsService.create(record);
+        let result = await Sap_initiative_sapsService.create(recordWithEmail);
+
+        const errorMessage =
+          (result?.error as any)?.message ||
+          (result?.error as any)?.toString?.() ||
+          '';
+
+        if (
+          !result?.success &&
+          typeof errorMessage === 'string' &&
+          errorMessage.includes("Invalid property 'sap_sap_createdemail'")
+        ) {
+          console.warn('⚠️ Dataverse does not expose sap_sap_createdemail yet. Retrying without that field.');
+          result = await Sap_initiative_sapsService.create(recordWithoutEmail);
+        }
 
         if (!result?.success) {
           const serverMsg = (result?.error as any)?.message || JSON.stringify(result?.error) || 'Unknown Dataverse error';
@@ -329,6 +433,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           logDescription: '',
           severity: 'Low',
           updatedAt: new Date().toISOString(),
+          createdByEmail: currentUserEmail,
         };
 
         setInitiatives((prev) => [newInitiative, ...prev]);
@@ -340,7 +445,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         return null;
       }
     },
-    [owners],
+    [owners, currentUserEmail],
   );
 
   const updateInitiative = useCallback(
@@ -350,6 +455,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
         if (!id || id.trim() === '') {
           throw new Error('Cannot update initiative: Invalid or empty ID');
+        }
+
+        const initiative = initiatives.find((item) => item.id === id);
+        if (!initiative) {
+          throw new Error('Initiative not found');
+        }
+        if (userRole === 'User' && normalizeEmail(initiative.createdByEmail) !== currentUserEmail) {
+          throw new Error('Permission denied');
         }
 
         const update: any = {};
@@ -431,13 +544,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
         throw error;
       }
     },
-    [initiatives, owners],
+    [initiatives, owners, currentUserEmail, userRole],
   );
 
   const deleteInitiative = useCallback(
     async (id: string) => {
       try {
         console.log('🗑️ Deleting initiative...', { id });
+
+        const initiative = initiatives.find((item) => item.id === id);
+        if (!initiative) {
+          throw new Error('Initiative not found');
+        }
+        if (userRole === 'User' && normalizeEmail(initiative.createdByEmail) !== currentUserEmail) {
+          throw new Error('Permission denied');
+        }
 
         // Delete from Dataverse
         await Sap_initiative_sapsService.delete(id);
@@ -446,6 +567,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const logsToDelete = auditLogs.filter((l) => l.initiativeId === id);
         for (const log of logsToDelete) {
           await Sap_auditlog_sapsService.delete(log.id);
+        }
+
+        // Delete associated favorites
+        const favsToDelete = await Sap_favorite_sapsService.getAll({
+          filter: `_sap_sap_initiative_value eq '${id}'`,
+        });
+        if (favsToDelete?.success && Array.isArray(favsToDelete.data)) {
+          for (const fav of favsToDelete.data as any[]) {
+            if (fav.sap_favorite_sapid) {
+              await Sap_favorite_sapsService.delete(fav.sap_favorite_sapid);
+            }
+          }
         }
 
         // Update local state
@@ -461,7 +594,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         console.error('❌ Error deleting initiative:', error);
       }
     },
-    [initiatives, auditLogs],
+    [initiatives, auditLogs, currentUserEmail, userRole],
   );
 
   const addAuditLog = useCallback(
@@ -578,16 +711,94 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [owners],
   );
 
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
-  }, []);
+  const toggleFavorite = useCallback(
+    async (id: string) => {
+      try {
+        const isFavorited = favorites.includes(id);
+
+        if (isFavorited) {
+          // Remove favorite from Dataverse
+          const favRecord = await Sap_favorite_sapsService.getAll({
+            filter: `_sap_sap_initiative_value eq '${id}' and sap_useremail eq '${currentUser?.mail}'`,
+          });
+
+          if (favRecord?.success && Array.isArray(favRecord.data) && favRecord.data.length > 0) {
+            const favId = (favRecord.data[0] as any).sap_favorite_sapid;
+            if (favId) {
+              await Sap_favorite_sapsService.delete(favId);
+              console.log('✅ Favorite removed from Dataverse:', { initiativeId: id });
+            }
+          }
+
+          setFavorites((prev) => prev.filter((f) => f !== id));
+        } else {
+          // Add favorite to Dataverse
+          if (!currentUser?.mail) {
+            console.warn('⚠️ Cannot add favorite: No user email');
+            return;
+          }
+
+          const favRecord: any = {
+            sap_useremail: currentUser.mail,
+            'sap_sap_initiative@odata.bind': `/sap_initiative_saps(${id})`,
+            statecode: 0,
+            statuscode: 1,
+          };
+
+          console.log('📤 Creating favorite record:', favRecord);
+          const result = await Sap_favorite_sapsService.create(favRecord);
+
+          if (result?.success) {
+            console.log('✅ Favorite added to Dataverse:', { initiativeId: id });
+            setFavorites((prev) => [...prev, id]);
+          } else {
+            console.error('❌ Failed to add favorite:', result?.error);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error toggling favorite:', error);
+      }
+    },
+    [favorites, currentUser?.mail],
+  );
 
   const refresh = useCallback(async () => {
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
     console.log('🔄 Refreshing data from Dataverse...');
-    await load();
+    try {
+      await load();
+    } finally {
+      refreshInFlight.current = false;
+    }
   }, [load]);
+
+  useEffect(() => {
+    const refreshOnVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refresh();
+      }
+    };
+
+    const refreshOnFocus = () => {
+      void refresh();
+    };
+
+    const poll = window.setInterval(() => {
+      if (!document.hidden) {
+        void refresh();
+      }
+    }, 30000);
+
+    document.addEventListener('visibilitychange', refreshOnVisibility);
+    window.addEventListener('focus', refreshOnFocus);
+
+    return () => {
+      window.clearInterval(poll);
+      document.removeEventListener('visibilitychange', refreshOnVisibility);
+      window.removeEventListener('focus', refreshOnFocus);
+    };
+  }, [refresh]);
 
   const value = useMemo<DataContextValue>(
     () => ({
@@ -595,6 +806,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       auditLogs,
       owners,
       currentUser,
+      userRole,
+      hasAppAccess,
+      accessMessage,
       favorites,
       createInitiative,
       updateInitiative,
@@ -612,6 +826,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       auditLogs,
       owners,
       currentUser,
+      userRole,
+      hasAppAccess,
+      accessMessage,
       favorites,
       createInitiative,
       updateInitiative,

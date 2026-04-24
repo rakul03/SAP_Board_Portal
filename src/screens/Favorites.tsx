@@ -4,12 +4,14 @@ import {
   ArrowUpDown,
   CalendarDays,
   Download,
+  Layers,
   Pencil,
   RefreshCw,
   Search,
+  SlidersHorizontal,
   Star,
   Trash2,
-  UserPlus,
+  User,
   X,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -20,9 +22,10 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { InitiativeForm } from '../components/InitiativeForm';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Category, Initiative, Status } from '../types';
 import { exportInitiativesToXlsx, todayStamp } from '../lib/export';
-import styles from './Favorites.module.css';
+import styles from './AllInitiatives.module.css';
 
 interface FavoritesProps {
   onOpenDetail: (id: string) => void;
@@ -58,6 +61,7 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
     refresh,
   } = useData();
   const { showToast } = useToast();
+  const { canEdit, canDelete } = usePermissions();
 
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | ''>('');
@@ -252,7 +256,7 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
           type="button"
           aria-label="Show total favorites"
         >
-          <span className={styles.summaryLabel}>Total Favorites</span>
+          <span className={styles.summaryLabel}>Total</span>
           <strong className={styles.summaryValue}>{filtered.length}</strong>
           <span className={styles.summaryMeta}>Click to clear</span>
         </button>
@@ -301,33 +305,46 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
       <section className={styles.workspace}>
         <div className={styles.filterBar}>
           <div className={styles.filterTop}>
-            <div>
-              <span className={styles.filterEyebrow}>Filter Workspace</span>
-              <h2 className={styles.filterTitle}>Search and refine favorites</h2>
+            <div className={styles.filterHeading}>
+              <div className={styles.filterIcon}>
+                <SlidersHorizontal size={16} strokeWidth={2.2} />
+              </div>
+              <div>
+                <span className={styles.filterEyebrow}>Filter Workspace</span>
+                <h2 className={styles.filterTitle}>Search & Refine</h2>
+              </div>
             </div>
             <div className={styles.filterMeta}>
-              <span>{favoriteInitiatives.length} total favorites</span>
+              <span className={styles.filterMetaCount}>{favoriteInitiatives.length}</span>
+              <span className={styles.filterMetaLabel}>total favorites</span>
             </div>
           </div>
 
+          <div className={styles.filterDivider} />
+
           <div className={styles.filterGrid}>
             <label className={`${styles.field} ${styles.searchField}`}>
-              <span className={styles.fieldLabel}>Initiative Name</span>
+              <span className={styles.fieldLabel}><Search size={10} />Initiative Name</span>
               <div className={styles.inputWrap}>
-                <Search size={15} className={styles.inputIcon} />
+                <Search size={14} className={styles.inputIcon} />
                 <input
                   className={styles.textInput}
-                  placeholder="Search by initiative name"
+                  placeholder="Search by initiative name…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
+                {search && (
+                  <button className={styles.inputClear} onClick={() => setSearch('')} tabIndex={-1} type="button">
+                    <X size={12} />
+                  </button>
+                )}
               </div>
             </label>
 
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Category</span>
+              <span className={styles.fieldLabel}><Layers size={10} />Category</span>
               <div className={styles.inputWrap}>
-                <UserPlus size={15} className={styles.inputIcon} />
+                <Layers size={14} className={styles.inputIcon} />
                 <select
                   className={styles.selectInput}
                   value={categoryFilter}
@@ -348,9 +365,9 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
             </label>
 
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Owner</span>
+              <span className={styles.fieldLabel}><User size={10} />Owner</span>
               <div className={styles.inputWrap}>
-                <UserPlus size={15} className={styles.inputIcon} />
+                <User size={14} className={styles.inputIcon} />
                 <select
                   className={styles.selectInput}
                   value={ownerFilter}
@@ -367,9 +384,9 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
             </label>
 
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Log Date</span>
+              <span className={styles.fieldLabel}><CalendarDays size={10} />Log Date</span>
               <div className={styles.inputWrap}>
-                <CalendarDays size={15} className={styles.inputIcon} />
+                <CalendarDays size={14} className={styles.inputIcon} />
                 <input
                   type="date"
                   className={styles.textInput}
@@ -380,9 +397,9 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
             </label>
 
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>Status</span>
+              <span className={styles.fieldLabel}><ArrowUpDown size={10} />Status</span>
               <div className={styles.inputWrap}>
-                <ArrowUpDown size={15} className={styles.inputIcon} />
+                <ArrowUpDown size={14} className={styles.inputIcon} />
                 <select
                   className={styles.selectInput}
                   value={statusFilter}
@@ -400,13 +417,17 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
 
           <div className={styles.filterFooter}>
             <div className={styles.activeFilters}>
-              <span className={styles.resultsPill}>{filtered.length} result(s)</span>
-              <span className={styles.resultsHint}>Default sort: recent log date descending</span>
+              <span className={styles.resultsPill}>
+                <span className={styles.resultsDot} />
+                {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+              </span>
+              {hasFilters && <span className={styles.filteredBadge}>Filtered</span>}
+              <span className={styles.resultsHint}>Sorted by latest log date</span>
             </div>
             {hasFilters && (
               <button className="secondary-btn" onClick={clearFilters}>
-                <X size={14} />
-                Clear Filters
+                <X size={13} />
+                Clear All
               </button>
             )}
           </div>
@@ -415,6 +436,7 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
         <section className={styles.dataPanel}>
           <div className={styles.tableHeader}>
             <span>Initiative Name</span>
+            <span>Category</span>
             <span>Owner</span>
             <span>Status</span>
             <span>Latest Log Date</span>
@@ -427,7 +449,7 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
                 <div className={styles.emptyIcon}>
                   <Star size={24} />
                 </div>
-                <h3>No favorites yet</h3>
+                <h3>No favorites found</h3>
                 <p>Star initiatives to see them here.</p>
               </div>
             ) : (
@@ -455,8 +477,8 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
                   >
                     <div className={styles.nameCell}>
                       <span>{initiative.name}</span>
-                      <small>{initiative.demandNumber || initiative.id.slice(-6).toUpperCase()}</small>
                     </div>
+                    <span className={styles.categoryCell}>{initiative.category}</span>
                     <span className={styles.ownerCell}>{initiative.owner || 'Unassigned'}</span>
                     <span className={styles.statusCell}>
                       <Badge type={initiative.status}>{initiative.status}</Badge>
@@ -468,33 +490,37 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
                       <button
                         className={`${styles.star} ${isFav ? styles.starActive : ''}`}
                         aria-label={isFav ? 'Unfavorite' : 'Favorite'}
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          toggleFavorite(initiative.id);
+                          await toggleFavorite(initiative.id);
                         }}
                       >
                         <Star size={16} fill={isFav ? 'currentColor' : 'none'} />
                       </button>
-                      <button
-                        className="ghost-btn"
-                        aria-label="Edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditing(initiative);
-                        }}
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        className={`ghost-btn ${styles.delete}`}
-                        aria-label="Delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPendingDelete(initiative);
-                        }}
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      {canEdit(initiative) && (
+                        <button
+                          className="ghost-btn"
+                          aria-label="Edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditing(initiative);
+                          }}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      )}
+                      {canDelete(initiative) && (
+                        <button
+                          className={`ghost-btn ${styles.delete}`}
+                          aria-label="Delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDelete(initiative);
+                          }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
                     </span>
                   </motion.div>
                 );

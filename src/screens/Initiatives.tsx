@@ -24,6 +24,7 @@ import { InitiativeForm } from '../components/InitiativeForm';
 import { ManageOwnersPanel } from '../components/ManageOwnersPanel';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
+import { usePermissions } from '../hooks/usePermissions';
 import type { Category, Initiative, Status } from '../types';
 import { exportInitiativesToXlsx, todayStamp } from '../lib/export';
 import styles from './Initiatives.module.css';
@@ -64,6 +65,7 @@ export function Initiatives({ onOpenDetail, selectedCategory, onBack }: Initiati
     refresh,
   } = useData();
   const { showToast } = useToast();
+  const { canEdit, canDelete } = usePermissions();
 
   const [search, setSearch] = useState('');
   const [ownerFilter, setOwnerFilter] = useState('');
@@ -485,33 +487,37 @@ export function Initiatives({ onOpenDetail, selectedCategory, onBack }: Initiati
                       <button
                         className={`${styles.star} ${isFav ? styles.starActive : ''}`}
                         aria-label={isFav ? 'Unfavorite' : 'Favorite'}
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          toggleFavorite(initiative.id);
+                          await toggleFavorite(initiative.id);
                         }}
                       >
                         <Star size={16} fill={isFav ? 'currentColor' : 'none'} />
                       </button>
-                      <button
-                        className="ghost-btn"
-                        aria-label="Edit"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditing(initiative);
-                        }}
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        className={`ghost-btn ${styles.delete}`}
-                        aria-label="Delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPendingDelete(initiative);
-                        }}
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      {canEdit(initiative) && (
+                        <button
+                          className="ghost-btn"
+                          aria-label="Edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditing(initiative);
+                          }}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                      )}
+                      {canDelete(initiative) && (
+                        <button
+                          className={`ghost-btn ${styles.delete}`}
+                          aria-label="Delete"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPendingDelete(initiative);
+                          }}
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
                     </span>
                   </motion.div>
                 );

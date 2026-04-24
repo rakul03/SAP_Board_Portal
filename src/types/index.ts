@@ -48,6 +48,7 @@ export interface Initiative {
   logDescription: string;
   severity: Severity;
   updatedAt: string;
+  createdByEmail?: string;
 }
 
 export interface AuditLog {
@@ -67,6 +68,8 @@ export interface Owner {
   name: string;
 }
 
+export type Role = 'User' | 'Manager' | 'Admin';
+
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastItem {
@@ -75,4 +78,4 @@ export interface ToastItem {
   type: ToastType;
 }
 
-export type TabId = 'home' | 'initiatives' | 'audit-logs' | 'dashboard';
+export type TabId = 'home' | 'initiatives' | 'audit-logs' | 'dashboard' | 'admin';

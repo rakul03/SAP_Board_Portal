@@ -31,6 +31,7 @@ import { InitiativeForm } from '../components/InitiativeForm';
 import { Modal } from '../components/Modal';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
+import { usePermissions } from '../hooks/usePermissions';
 import { exportSingleInitiativeToXlsx, todayStamp } from '../lib/export';
 import type { AuditLog, Initiative, Severity } from '../types';
 import { SEVERITIES } from '../types';
@@ -82,6 +83,7 @@ export function InitiativeDetail({ initiativeId, onBack }: InitiativeDetailProps
     addAuditLog,
   } = useData();
   const { showToast } = useToast();
+  const { canEdit, canDelete } = usePermissions();
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -219,14 +221,18 @@ ${initiative.comments || 'No content provided.'}
             <Copy size={14} />
             Copy All
           </button>
-          <button className="secondary-btn" onClick={() => setEditOpen(true)}>
-            <Pencil size={14} />
-            Edit Initiative
-          </button>
-          <button className={styles.dangerBtn} onClick={() => setDeleteOpen(true)}>
-            <Trash2 size={14} />
-            Delete
-          </button>
+          {canEdit(initiative) && (
+            <button className="secondary-btn" onClick={() => setEditOpen(true)}>
+              <Pencil size={14} />
+              Edit Initiative
+            </button>
+          )}
+          {canDelete(initiative) && (
+            <button className={styles.dangerBtn} onClick={() => setDeleteOpen(true)}>
+              <Trash2 size={14} />
+              Delete
+            </button>
+          )}
           <button className="liquid-btn" onClick={handleExport}>
             <Download size={14} />
             Export Excel

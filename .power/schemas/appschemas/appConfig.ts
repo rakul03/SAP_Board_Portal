@@ -25,5 +25,15 @@ export const appConfig = {
       logicalName: "sap_sapportfolioowner",
       isHidden: false,
     },
+    sapfavorites: {
+      entitySetName: "sap_favorite_saps",
+      logicalName: "sap_favorite_sap",
+      isHidden: false,
+    },
+    sapappusers: {
+      entitySetName: "sap_appuser_saps",
+      logicalName: "sap_appuser_sap",
+      isHidden: false,
+    },
   },
 };

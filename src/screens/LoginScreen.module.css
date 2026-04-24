@@ -392,6 +392,89 @@
   letter-spacing: 0.03em;
 }
 
+.accessOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(14, 165, 133, 0.16), transparent 40%),
+    rgba(2, 6, 23, 0.58);
+  backdrop-filter: blur(12px);
+}
+
+.accessPopup {
+  width: min(560px, 100%);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.96), rgba(249, 250, 251, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 30px 90px -24px rgba(2, 6, 23, 0.55);
+}
+
+.popupIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(14, 165, 133, 0.12), rgba(15, 64, 36, 0.08));
+  border: 1px solid rgba(14, 165, 133, 0.18);
+  color: var(--accent-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popupBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popupKicker {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(214, 69, 69, 0.12);
+  color: #b42318;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.popupBody h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.popupBody p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.popupMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
 @media (max-width: 960px) {
   .root {
     grid-template-columns: 1fr;
@@ -408,5 +491,8 @@
   }
   .card {
     padding: 32px;
+  }
+  .accessPopup {
+    grid-template-columns: 1fr;
   }
 }

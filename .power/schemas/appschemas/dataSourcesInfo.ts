@@ -5,10 +5,24 @@
  */
 
 export const dataSourcesInfo = {
+  "sap_appuser_saps": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "sap_appuser_sapid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "sap_auditlog_saps": {
     "tableId": "",
     "version": "",
     "primaryKey": "sap_auditlog_sapid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "sap_favorite_saps": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "sap_favorite_sapid",
     "dataSourceType": "Dataverse",
     "apis": {}
   },

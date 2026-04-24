@@ -2,13 +2,12 @@ import { motion, type Variants } from 'framer-motion';
 import {
   BarChart3,
   Layers,
-  Loader2,
   ShieldCheck,
   TrendingUp,
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import styles from './LoginScreen.module.css';
 
@@ -55,8 +54,21 @@ const cardVariants: Variants = {
 };
 
 export function LoginScreen({ onLogin }: LoginScreenProps) {
-  const { initiatives } = useData();
-  const [loading, setLoading] = useState(false);
+  const { initiatives, currentUser, isLoading, hasAppAccess, accessMessage } = useData();
+  const [warning, setWarning] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!currentUser?.mail) {
+      setWarning('We could not detect your Microsoft 365 account. Please contact the portal administrator.');
+      return;
+    }
+    if (!hasAppAccess) {
+      setWarning(accessMessage || 'Your account is not registered for this portal. Please contact the portal administrator.');
+      return;
+    }
+    setWarning(null);
+  }, [accessMessage, currentUser?.mail, hasAppAccess, isLoading]);
 
   // Compute live stats from Dataverse
   const stats = useMemo(() => {
@@ -72,14 +84,6 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
       { value: `${health}%`, label: 'Health Index' },
     ];
   }, [initiatives]);
-
-  function handleGetStarted() {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      onLogin();
-    }, 1100);
-  }
 
   return (
     <div className={styles.root}>
@@ -186,8 +190,12 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             >
               <Sparkles size={28} />
             </motion.div>
-            <h2>Ready to Explore?</h2>
-            <p>Access the unified portfolio command center</p>
+            <h2>{warning ? 'Access blocked' : 'Access verified'}</h2>
+            <p>
+              {warning
+                ? 'This account is not approved for the portal.'
+                : 'Your Microsoft 365 identity has been approved for the portal.'}
+            </p>
           </div>
 
           <div className={styles.ctaContent}>
@@ -196,9 +204,9 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
               variants={containerVariants}
             >
               {[
-                'Instant access to all domains',
-                'Real-time Dataverse synchronization',
-                'Advanced compliance oversight',
+                'Microsoft 365 identity check',
+                'Dataverse app-user lookup',
+                'Role-based access enforcement',
               ].map((text, i) => (
                 <motion.div
                   key={i}
@@ -211,33 +219,57 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
               ))}
             </motion.div>
 
-            <motion.button
-              className={styles.ctaButton}
-              onClick={handleGetStarted}
-              disabled={loading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              variants={itemVariants}
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={20} className={styles.spin} />
-                  <span>Initialising...</span>
-                </>
-              ) : (
-                <>
-                  <span>Get Started</span>
-                  <ArrowRight size={20} />
-                </>
-              )}
-            </motion.button>
-
             <p className={styles.ctaNote}>
-              Authorized personnel only. Access subject to security logging.
+              {warning
+                ? 'Authorized personnel only. Contact the portal administrator for access.'
+                : 'Authorized personnel only. Access subject to security logging.'}
             </p>
+
+            {!warning && (
+              <motion.button
+                className={styles.ctaButton}
+                onClick={onLogin}
+                disabled={isLoading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                variants={itemVariants}
+              >
+                <span>Get Started</span>
+                <ArrowRight size={20} />
+              </motion.button>
+            )}
           </div>
         </motion.div>
       </motion.section>
+
+      {warning && (
+        <motion.div
+          className={styles.accessOverlay}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
+          <motion.div
+            className={styles.accessPopup}
+            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className={styles.popupIcon}>
+              <ShieldCheck size={22} />
+            </div>
+            <div className={styles.popupBody}>
+              <span className={styles.popupKicker}>Access required</span>
+              <h3>Contact the portal administrator</h3>
+              <p>{warning}</p>
+              <div className={styles.popupMeta}>
+                <span>Microsoft 365: {currentUser?.mail || 'Unknown'}</span>
+                <span>Role: {hasAppAccess ? 'Approved' : 'Not registered'}</span>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }

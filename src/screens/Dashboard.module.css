@@ -1,8 +1,326 @@
 .wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 28px;
   padding: 0;
+  isolation: isolate;
+}
+
+.wrap::before {
+  content: '';
+  position: fixed;
+  inset: -20vh -10vw auto auto;
+  width: 42vw;
+  height: 42vw;
+  max-width: 680px;
+  max-height: 680px;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--accent-600) 12%, transparent), transparent 62%),
+    radial-gradient(circle, color-mix(in srgb, #10b981 10%, transparent), transparent 58%);
+  filter: blur(24px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: -2;
+  animation: heroFloat 16s ease-in-out infinite;
+}
+
+.wrap::after {
+  content: '';
+  position: fixed;
+  inset: auto auto -18vh -8vw;
+  width: 34vw;
+  height: 34vw;
+  max-width: 520px;
+  max-height: 520px;
+  background: radial-gradient(circle, color-mix(in srgb, #3b82f6 10%, transparent), transparent 64%);
+  filter: blur(28px);
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: -2;
+  animation: heroFloat 20s ease-in-out infinite reverse;
+}
+
+/* ──────────────────────────────────────────────
+   DASHBOARD HERO - Animated Command Strip
+   ────────────────────────────────────────────── */
+
+.dashboardHero {
+  position: relative;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: calc(var(--radius-lg) + 8px);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent-600) 10%, var(--bg-secondary)) 0%, var(--bg-secondary) 52%, color-mix(in srgb, #3b82f6 8%, var(--bg-secondary)) 100%);
+  border: 1px solid color-mix(in srgb, var(--accent-600) 18%, var(--border-light));
+  box-shadow:
+    0 8px 24px rgba(15, 64, 36, 0.08),
+    0 24px 60px rgba(15, 64, 36, 0.08);
+}
+
+.dashboardHero::before,
+.dashboardHero::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.dashboardHero::before {
+  top: -36px;
+  right: -28px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-600) 20%, transparent), transparent 68%);
+  animation: heroPulse 12s ease-in-out infinite;
+}
+
+.dashboardHero::after {
+  bottom: -34px;
+  left: 18%;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, color-mix(in srgb, #10b981 16%, transparent), transparent 70%);
+  animation: heroFloat 14s ease-in-out infinite reverse;
+}
+
+.heroBackdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.06) 48%, transparent 70%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.34), transparent 38%);
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.heroGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px 4px 10px 6px;
+}
+
+.heroEyebrow {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-600) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-600) 18%, transparent);
+  color: var(--accent-600);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.heroCopy h2 {
+  max-width: 18ch;
+  margin: 0;
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.03;
+  letter-spacing: -0.05em;
+  color: var(--text-primary);
+}
+
+.heroCopy p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.heroMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-secondary) 82%, transparent);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 12px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+}
+
+.heroPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-600) 14%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 92%, transparent), var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--accent-600) 14%, var(--border-light));
+  box-shadow:
+    0 8px 24px rgba(15, 64, 36, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.heroPanel::before {
+  content: '';
+  position: absolute;
+  inset: auto -18px -48px auto;
+  width: 170px;
+  height: 170px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, #3b82f6 12%, transparent), transparent 68%);
+  pointer-events: none;
+  animation: heroFloat 10s ease-in-out infinite;
+}
+
+.heroPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.heroPanelKicker {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.heroPanelHeader h3 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--text-primary);
+}
+
+.heroPanelStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, #10b981 12%, transparent);
+  color: #0f7a57;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.heroPulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: pulseDot 1.8s ease-out infinite;
+}
+
+.heroPanelMain {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-600) 10%, transparent), color-mix(in srgb, #10b981 8%, transparent));
+  border: 1px solid color-mix(in srgb, var(--accent-600) 16%, transparent);
+}
+
+.heroPanelValue {
+  font-family: var(--font-mono);
+  font-size: clamp(42px, 6vw, 64px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--text-primary);
+}
+
+.heroPanelLabel {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+}
+
+.heroStatGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.heroStatCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-secondary) 90%, transparent);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base);
+}
+
+.heroStatCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent-600) 24%, var(--border-medium));
+  box-shadow: var(--shadow-md);
+}
+
+.heroStatCard svg {
+  color: var(--accent-600);
+  flex-shrink: 0;
+}
+
+.heroStatCard > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.heroStatLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+}
+
+.heroStatCard strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ──────────────────────────────────────────────
@@ -24,39 +342,44 @@
   display: flex;
   flex-direction: column;
   padding: 28px;
-  background: linear-gradient(
-    135deg,
-    hsl(158, 55%, 96%) 0%,
-    hsl(158, 45%, 98%) 100%
-  );
-  border: 2px solid hsl(158, 30%, 86%);
-  border-top: 4px solid;
-  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--summary-accent) 14%, var(--border-light));
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--summary-accent) 16%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--summary-accent) 7%, var(--bg-secondary)) 0%, var(--bg-secondary) 70%);
 
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(15, 64, 36, 0.08),
-    0 12px 32px rgba(15, 64, 36, 0.06);
+    0 8px 18px rgba(15, 64, 36, 0.07),
+    0 18px 40px rgba(15, 64, 36, 0.06);
 
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   overflow: hidden;
-  border: none;
+  backdrop-filter: blur(14px);
 }
 
 .summaryCard::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(16, 185, 129, 0.2),
-    transparent
-  );
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 48%, transparent 62%);
+  opacity: 0;
+  transform: translateX(-28%);
+  transition: opacity 0.24s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.summaryCard::after {
+  content: '';
+  position: absolute;
+  inset: auto -18px -24px auto;
+  width: 132px;
+  height: 132px;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--summary-accent) 16%, transparent), transparent 68%);
+  opacity: 0.75;
+  pointer-events: none;
 }
 
 .summaryCard:hover {
@@ -65,6 +388,11 @@
     0 1px 3px rgba(0, 0, 0, 0.06),
     0 8px 24px rgba(15, 64, 36, 0.12),
     0 16px 48px rgba(15, 64, 36, 0.10);
+}
+
+.summaryCard:hover::before {
+  opacity: 1;
+  transform: translateX(18%);
 }
 
 .summaryCard:active {
@@ -103,6 +431,12 @@
   margin-top: 6px;
 }
 
+.summaryCardCaption {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
 .summaryCardIcon {
   width: 48px;
   height: 48px;
@@ -112,6 +446,9 @@
   justify-content: center;
   transition: transform 0.3s ease;
   flex-shrink: 0;
+  color: var(--summary-accent);
+  background: color-mix(in srgb, var(--summary-accent) 14%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .summaryCard:hover .summaryCardIcon {
@@ -142,16 +479,17 @@
 .summaryProgressBar {
   width: 100%;
   height: 6px;
-  background: hsl(158, 30%, 90%);
-  border-radius: 3px;
+  background: color-mix(in srgb, var(--summary-accent) 10%, var(--bg-tertiary));
+  border-radius: 999px;
   overflow: hidden;
   margin: 8px 0;
 }
 
 .summaryProgress {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #0f7957);
-  border-radius: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--summary-accent), color-mix(in srgb, var(--summary-accent) 72%, #000));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--summary-accent) 20%, transparent);
 }
 
 /* ──────────────────────────────────────────────
@@ -194,6 +532,7 @@
 }
 
 .healthScoreCircle {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -201,15 +540,56 @@
   width: 80px;
   height: 80px;
   border-radius: 16px;
-  background: linear-gradient(135deg, hsl(158, 50%, 95%), hsl(158, 40%, 92%));
-  border: 2px solid hsl(158, 30%, 86%);
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--health-accent) 18%, transparent), transparent 42%),
+    linear-gradient(135deg, hsl(158, 50%, 95%), hsl(158, 40%, 92%));
+  border: 2px solid color-mix(in srgb, var(--health-accent) 28%, hsl(158, 30%, 86%));
   flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow:
+    0 10px 24px rgba(15, 64, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.healthScoreCircle::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--health-accent) 18%, transparent);
+  opacity: 0.85;
+}
+
+.healthScoreAura {
+  position: absolute;
+  inset: -12px;
+  border-radius: 24px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--health-accent) 24%, transparent), transparent 68%);
+  pointer-events: none;
+}
+
+.healthScoreIcon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--health-accent);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 6px 12px rgba(15, 64, 36, 0.08);
 }
 
 .healthScoreValue {
   font-size: 32px;
   font-weight: 800;
   line-height: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .healthScoreMax {
@@ -217,6 +597,8 @@
   color: var(--text-tertiary);
   font-weight: 600;
   margin-top: 2px;
+  position: relative;
+  z-index: 1;
 }
 
 .healthBar {
@@ -617,11 +999,18 @@
 
 .chartCard,
 .chartCardFull {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-600) 10%, transparent), transparent 36%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 96%, transparent), var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--accent-600) 10%, var(--border-light));
+  border-radius: calc(var(--radius-lg) + 2px);
   padding: 22px;
-  box-shadow: var(--shadow-sm);
+  box-shadow:
+    0 8px 20px rgba(15, 64, 36, 0.06),
+    0 20px 50px rgba(15, 64, 36, 0.06);
+  backdrop-filter: blur(16px);
   transition:
     transform var(--transition-base),
     box-shadow var(--transition-base),
@@ -632,10 +1021,36 @@
   gap: 16px;
 }
 
+.chartCard > *,
+.chartCardFull > * {
+  position: relative;
+  z-index: 1;
+}
+
+.chartCard::before,
+.chartCardFull::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 46%, transparent 64%),
+    radial-gradient(circle at bottom left, color-mix(in srgb, #3b82f6 8%, transparent), transparent 30%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
 .chartCard:hover,
 .chartCardFull:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-medium);
+  box-shadow:
+    0 12px 28px rgba(15, 64, 36, 0.08),
+    0 26px 64px rgba(15, 64, 36, 0.1);
+  border-color: color-mix(in srgb, var(--accent-600) 18%, var(--border-medium));
+}
+
+.chartCard:hover::before,
+.chartCardFull:hover::before {
+  opacity: 1;
 }
 
 .chartCardFull {
@@ -660,6 +1075,11 @@
   width: 100%;
   height: 240px;
   position: relative;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 88%, transparent), color-mix(in srgb, var(--bg-tertiary) 86%, transparent));
+  border: 1px solid color-mix(in srgb, var(--border-light) 60%, transparent);
+  padding: 10px;
 }
 
 .chartHost > div {
@@ -710,6 +1130,12 @@
   gap: 2px;
   pointer-events: none;
   z-index: 10;
+  padding: 14px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-secondary) 84%, transparent);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(14px);
 }
 
 .donutValue {
@@ -734,6 +1160,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  padding-top: 2px;
 }
 
 .legend li {
@@ -767,11 +1194,18 @@
 }
 
 .drillDownPanel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent-600) 8%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 96%, transparent), var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--accent-600) 12%, var(--border-light));
   border-radius: var(--radius-lg);
   padding: 20px;
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 8px 20px rgba(15, 64, 36, 0.06),
+    0 20px 44px rgba(15, 64, 36, 0.07);
+  backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -878,7 +1312,45 @@
   text-align: center;
 }
 
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.05);
+  }
+}
+
+@keyframes heroPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes pulseDot {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 50%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, currentColor 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 0%, transparent);
+  }
+}
+
 @media (max-width: 1440px) {
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+
   .row2 {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
@@ -889,11 +1361,18 @@
 }
 
 @media (max-width: 1024px) {
+  .dashboardHero {
+    padding: 22px;
+  }
+
   .row2 {
     grid-template-columns: 1fr;
   }
   .kpiGrid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .heroStatGrid {
+    grid-template-columns: 1fr;
   }
   .chartHost {
     height: 240px;
@@ -903,6 +1382,15 @@
 @media (max-width: 768px) {
   .wrap {
     gap: 20px;
+  }
+
+  .dashboardHero {
+    padding: 18px;
+  }
+
+  .heroCopy h2 {
+    max-width: 100%;
+    font-size: 28px;
   }
 
   .summaryBar {
@@ -933,6 +1421,12 @@
 
   .chartHost {
     height: 200px;
+    padding: 8px;
+  }
+
+  .chartCard,
+  .chartCardFull {
+    padding: 18px;
   }
 
   .drillDownList {
@@ -945,6 +1439,10 @@
 
   .legend {
     gap: 8px 12px;
+  }
+
+  .heroMetaItem {
+    width: 100%;
   }
 }
 
@@ -990,6 +1488,10 @@
 
   .chartHost {
     height: 180px;
+  }
+
+  .heroStatCard {
+    padding: 12px;
   }
 
   .legend {

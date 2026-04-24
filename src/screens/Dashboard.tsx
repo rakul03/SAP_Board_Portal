@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Download, X } from 'lucide-react';
+import { Activity, ArrowUpRight, Clock3, Download, Sparkles, Target, Users, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import {
   Area,
@@ -18,12 +18,9 @@ import {
 import { PageHeader } from '../components/PageHeader';
 import { Badge } from '../components/Badge';
 import { useData } from '../context/DataContext';
+import { exportDashboardReportToXlsx, todayStamp } from '../lib/export';
 import { CATEGORIES } from '../types';
 import { ExecutiveSummary } from './Dashboard/components/ExecutiveSummary';
-import { HealthIndicator } from './Dashboard/components/HealthIndicator';
-import { AlertBanner } from './Dashboard/components/AlertBanner';
-import { useHealthScore } from './Dashboard/hooks/useHealthScore';
-import { useAlerts } from './Dashboard/hooks/useAlerts';
 import { useDashboardMetrics } from './Dashboard/hooks/useDashboardMetrics';
 import styles from './Dashboard.module.css';
 
@@ -60,10 +57,9 @@ function tooltipStyle(): React.CSSProperties {
 export function Dashboard() {
   const { initiatives, auditLogs, owners } = useData();
   const [drillDown, setDrillDown] = useState<DrillDownFilter>({ type: '', value: '' });
+  const [isExporting, setIsExporting] = useState(false);
 
   // New hooks for enhanced dashboard
-  const healthScore = useHealthScore(initiatives, auditLogs);
-  const alerts = useAlerts(initiatives);
   const metrics = useDashboardMetrics(initiatives);
 
 
@@ -155,6 +151,31 @@ export function Dashboard() {
     return Object.entries(counts).map(([name, value]) => ({ name, value }));
   }, [auditLogs]);
 
+  const completedCount = useMemo(
+    () => initiatives.filter((initiative) => initiative.status === 'Completed').length,
+    [initiatives],
+  );
+
+  const openCount = useMemo(
+    () => initiatives.filter((initiative) => initiative.status !== 'Completed').length,
+    [initiatives],
+  );
+
+  const completionRate = metrics.total > 0 ? Math.round((completedCount / metrics.total) * 100) : 0;
+  const recentActivityCount = activityData.reduce((sum, entry) => sum + entry.count, 0);
+  const topOwner = ownerWorkload[0]?.name ?? 'No owner assigned';
+
+  const handleExportReport = async () => {
+    if (isExporting) return;
+    try {
+      setIsExporting(true);
+      const fileName = `dashboard_report_${todayStamp()}.xlsx`;
+      exportDashboardReportToXlsx(initiatives, auditLogs, owners, fileName);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className={styles.wrap}>
       <PageHeader
@@ -162,24 +183,93 @@ export function Dashboard() {
         subtitle="Real-time initiative tracking & intelligent insights"
         breadcrumbs={['Analytics', 'Dashboard']}
         actions={
-          <button className="liquid-btn">
+          <button className="liquid-btn" onClick={handleExportReport} disabled={isExporting}>
             <Download size={14} />
-            Export Report
+            {isExporting ? 'Exporting...' : 'Export Report'}
           </button>
         }
       />
+
+      <motion.section
+        className={styles.dashboardHero}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className={styles.heroBackdrop} aria-hidden="true" />
+        <div className={styles.heroGrid}>
+          <div className={styles.heroCopy}>
+            <span className={styles.heroEyebrow}>
+              <Sparkles size={14} />
+              Command center
+            </span>
+            <h2>Monitor the portfolio with a more cinematic, real-time command view.</h2>
+            <p>
+              Spot movement across initiatives, ownership, and audit activity at a glance.
+              The screen responds with animated signal blocks, live counts, and polished chart surfaces.
+            </p>
+
+            <div className={styles.heroMeta}>
+              <div className={styles.heroMetaItem}>
+                <Activity size={14} />
+                <span>{recentActivityCount} audit events in the last 7 days</span>
+              </div>
+              <div className={styles.heroMetaItem}>
+                <ArrowUpRight size={14} />
+                <span>{completionRate}% completion rate across the portfolio</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.heroPanel}>
+            <div className={styles.heroPanelHeader}>
+              <div>
+                <p className={styles.heroPanelKicker}>Live signal</p>
+                <h3>Portfolio pulse</h3>
+              </div>
+              <span className={styles.heroPanelStatus}>
+                <span className={styles.heroPulse} />
+                Updating
+              </span>
+            </div>
+
+            <div className={styles.heroPanelMain}>
+              <div className={styles.heroPanelValue}>{metrics.total}</div>
+              <div className={styles.heroPanelLabel}>Tracked initiatives</div>
+            </div>
+
+            <div className={styles.heroStatGrid}>
+              <div className={styles.heroStatCard}>
+                <Users size={16} />
+                <div>
+                  <span className={styles.heroStatLabel}>Owners</span>
+                  <strong>{metrics.owners}</strong>
+                </div>
+              </div>
+              <div className={styles.heroStatCard}>
+                <Target size={16} />
+                <div>
+                  <span className={styles.heroStatLabel}>Open items</span>
+                  <strong>{openCount}</strong>
+                </div>
+              </div>
+              <div className={styles.heroStatCard}>
+                <Clock3 size={16} />
+                <div>
+                  <span className={styles.heroStatLabel}>Top owner</span>
+                  <strong title={topOwner}>{topOwner}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
 
       {/* NEW: Executive Summary with Enhanced KPI Cards */}
       <ExecutiveSummary
         metrics={metrics}
         onDrillDown={(type, value) => setDrillDown({ type: type as any, value })}
       />
-
-      {/* NEW: Health Indicator Panel */}
-      <HealthIndicator metrics={healthScore} />
-
-      {/* NEW: Alert Banner */}
-      <AlertBanner alerts={alerts} />
 
       <div className={styles.row2}>
         <motion.div

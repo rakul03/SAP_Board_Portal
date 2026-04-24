@@ -6,12 +6,16 @@
 // Models
 export * as CommonModels from './models/CommonModels';
 export * as Office365UsersModel from './models/Office365UsersModel';
+export * as Sap_appuser_sapsModel from './models/Sap_appuser_sapsModel';
 export * as Sap_auditlog_sapsModel from './models/Sap_auditlog_sapsModel';
+export * as Sap_favorite_sapsModel from './models/Sap_favorite_sapsModel';
 export * as Sap_initiative_sapsModel from './models/Sap_initiative_sapsModel';
 export * as Sap_portfolioowner_sapsModel from './models/Sap_portfolioowner_sapsModel';
 
 // Services
 export * from './services/Office365UsersService';
+export * from './services/Sap_appuser_sapsService';
 export * from './services/Sap_auditlog_sapsService';
+export * from './services/Sap_favorite_sapsService';
 export * from './services/Sap_initiative_sapsService';
 export * from './services/Sap_portfolioowner_sapsService';

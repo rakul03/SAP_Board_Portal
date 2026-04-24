@@ -52,26 +52,50 @@ export function ExecutiveSummary({ metrics, onDrillDown }: ExecutiveSummaryProps
       onClick: () => {},
     },
   ];
+  const maxValue = Math.max(...cards.map((card) => card.value), 1);
+  const cardCaptions: Record<string, string> = {
+    'Total Initiatives': 'Portfolio baseline',
+    Active: 'Work currently in motion',
+    'Pending Review': 'Awaiting decision',
+    'Portfolio Owners': 'Assigned account holders',
+  };
 
   return (
     <div className={styles.executiveSummary}>
       <div className={styles.summaryGridContainer}>
         {cards.map((card, idx) => (
-          <ExecutiveSummaryCard key={card.label} card={card} index={idx} />
+          <ExecutiveSummaryCard
+            key={card.label}
+            card={card}
+            index={idx}
+            maxValue={maxValue}
+            caption={cardCaptions[card.label]}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function ExecutiveSummaryCard({ card, index }: { card: MetricCard; index: number }) {
+function ExecutiveSummaryCard({
+  card,
+  index,
+  maxValue,
+  caption,
+}: {
+  card: MetricCard;
+  index: number;
+  maxValue: number;
+  caption: string;
+}) {
   const Icon = card.icon;
   const TrendIcon = card.trend.isPositive ? TrendingUp : TrendingDown;
+  const progress = Math.min((card.value / maxValue) * 100, 100);
 
   return (
     <motion.button
       className={styles.summaryCard}
-      style={{ borderTopColor: card.color }}
+      style={{ ['--summary-accent' as any]: card.color }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -87,9 +111,10 @@ function ExecutiveSummaryCard({ card, index }: { card: MetricCard; index: number
             <div className={styles.summaryCardValue} style={{ color: card.color }}>
               {card.value.toLocaleString()}
             </div>
+            <p className={styles.summaryCardCaption}>{caption}</p>
           </div>
 
-          <div className={styles.summaryCardIcon} style={{ color: card.color, background: `${card.color}14` }}>
+          <div className={styles.summaryCardIcon}>
             <Icon size={24} />
           </div>
         </div>
@@ -112,9 +137,8 @@ function ExecutiveSummaryCard({ card, index }: { card: MetricCard; index: number
         <div className={styles.summaryProgressBar}>
           <motion.div
             className={styles.summaryProgress}
-            style={{ background: card.color }}
             initial={{ width: 0 }}
-            animate={{ width: `${Math.min((card.value / 100) * 100, 100)}%` }}
+            animate={{ width: `${progress}%` }}
             transition={{ delay: index * 0.08 + 0.2, duration: 0.6, ease: 'easeOut' }}
           />
         </div>

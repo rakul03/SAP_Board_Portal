@@ -1,44 +1,55 @@
 {
   "project": "DEV-SAP_Portal-DUB",
-  "prompts": 34,
-  "api_calls": 769,
-  "active_hours": 1.69,
-  "input_tokens": 16676,
-  "output_tokens": 483880,
-  "total_tokens": 500556,
-  "cache_read": 69534671,
-  "cache_write": 1618350,
-  "lines_written": 10044,
-  "cost": 19.8,
-  "cost_per_prompt": 0.58,
-  "cost_per_line": 0.002,
-  "sessions": 2,
+  "prompts": 66,
+  "api_calls": 1565,
+  "active_hours": 4.22,
+  "input_tokens": 70504,
+  "output_tokens": 910045,
+  "total_tokens": 980549,
+  "cache_read": 120279006,
+  "cache_write": 5210530,
+  "lines_written": 13892,
+  "cost": 45.93,
+  "cost_per_prompt": 0.7,
+  "cost_per_line": 0.0033,
+  "sessions": 10,
   "model_breakdown": {
     "haiku": {
-      "api_calls": 597,
-      "input_tokens": 16441,
-      "output_tokens": 292237,
-      "cache_read": 45773269,
-      "cache_write": 932207,
-      "cost": 7.22
+      "api_calls": 932,
+      "input_tokens": 19426,
+      "output_tokens": 432266,
+      "cache_read": 64938542,
+      "cache_write": 2481461,
+      "cost": 11.78
     },
     "sonnet": {
-      "api_calls": 172,
-      "input_tokens": 235,
-      "output_tokens": 191643,
-      "cache_read": 23761402,
-      "cache_write": 686143,
-      "cost": 12.58
+      "api_calls": 631,
+      "input_tokens": 51078,
+      "output_tokens": 477779,
+      "cache_read": 55340464,
+      "cache_write": 2729069,
+      "cost": 34.16
+    },
+    "opus": {
+      "api_calls": 2,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "cache_read": 0,
+      "cache_write": 0,
+      "cost": 0.0
     }
   },
   "tool_calls": {
-    "Bash": 70,
-    "Read": 92,
+    "Bash": 164,
+    "Read": 259,
     "Glob": 3,
-    "Edit": 164,
-    "Write": 13,
-    "TodoWrite": 3,
-    "Agent": 1
+    "Edit": 260,
+    "Write": 27,
+    "EnterPlanMode": 7,
+    "Agent": 10,
+    "ExitPlanMode": 7,
+    "AskUserQuestion": 2,
+    "TodoWrite": 3
   },
-  "updated_at": "2026-04-23T01:08:31.831817"
+  "updated_at": "2026-04-23T13:47:32.490744"
 }

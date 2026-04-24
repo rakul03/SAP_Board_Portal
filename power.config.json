@@ -36,6 +36,16 @@
           "entitySetName": "sap_portfolioowner_saps",
           "logicalName": "sap_portfolioowner_sap",
           "isHidden": false
+        },
+        "favorite_saps": {
+          "entitySetName": "sap_favorite_saps",
+          "logicalName": "sap_favorite_sap",
+          "isHidden": false
+        },
+        "appuser_saps": {
+          "entitySetName": "sap_appuser_saps",
+          "logicalName": "sap_appuser_sap",
+          "isHidden": false
         }
       },
       "environmentVariableName": ""
