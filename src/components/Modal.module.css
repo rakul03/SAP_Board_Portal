@@ -33,6 +33,9 @@
 .lg {
   max-width: 960px;
 }
+.xl {
+  max-width: 1180px;
+}
 
 .header {
   display: flex;

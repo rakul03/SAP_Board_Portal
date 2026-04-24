@@ -1,10 +1,11 @@
-import type { AuditLog, Initiative, Owner } from '../types';
+import type { AuditLog, Initiative, MemoRecord, Owner } from '../types';
 
 export const STORAGE_KEYS = {
   initiatives: 'sap_initiatives',
   auditLogs: 'sap_audit_logs',
   owners: 'sap_owners',
   favorites: 'sap_favorites',
+  memos: 'sap_memos',
   theme: 'theme',
 } as const;
 
@@ -31,6 +32,8 @@ export const storage = {
   saveOwners: (v: Owner[]) => write(STORAGE_KEYS.owners, v),
   loadFavorites: () => read<string[]>(STORAGE_KEYS.favorites, []),
   saveFavorites: (v: string[]) => write(STORAGE_KEYS.favorites, v),
+  loadMemos: () => read<MemoRecord[]>(STORAGE_KEYS.memos, []),
+  saveMemos: (v: MemoRecord[]) => write(STORAGE_KEYS.memos, v),
 };
 
 export function generateInitiativeId(existing: Initiative[]): string {
