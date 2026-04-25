@@ -1,7 +1,22 @@
-import { FileText, Lock, RefreshCcw } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import type { Initiative, MemoDraft } from '../types';
-import { createMemoDraft, generateMemoPdf, getLatestMemo, saveMemoRecord } from '../lib/memo';
+import {
+  ChevronDown,
+  Download,
+  FileText,
+  Plus,
+  RefreshCcw,
+  Table as TableIcon,
+  Trash2,
+} from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Initiative, MemoDraft, MemoTable } from '../types';
+import {
+  createMemoDraft,
+  ensureMemoTable,
+  exportMemo,
+  getLatestMemo,
+  saveMemoRecord,
+  type MemoExportFormat,
+} from '../lib/memo';
 import styles from './MemoComposer.module.css';
 
 interface CurrentUserLike {
@@ -19,47 +34,111 @@ interface MemoComposerProps {
 export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }: MemoComposerProps) {
   const latestMemo = useMemo(() => getLatestMemo(initiative.id), [initiative.id]);
   const initialDraft = useMemo(() => {
-    return latestMemo?.draft ?? createMemoDraft(initiative, currentUser);
+    const base = latestMemo?.draft ?? createMemoDraft(initiative, currentUser);
+    return ensureMemoTable(base, initiative);
   }, [initiative, currentUser, latestMemo]);
 
   const [draft, setDraft] = useState<MemoDraft>(initialDraft);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [previewPdf, setPreviewPdf] = useState<string | null>(latestMemo?.pdfDataUri ?? null);
+  const [exportingAs, setExportingAs] = useState<MemoExportFormat | null>(null);
+  const [previewPdf, setPreviewPdf] = useState<string | null>(null);
   const [previewFileName, setPreviewFileName] = useState<string | null>(latestMemo?.fileName ?? null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const snapshot = [
-    ['Initiative', initiative.name],
-    ['Category', initiative.category],
-    ['Owner', initiative.owner || 'Unassigned'],
-    ['Implementer', initiative.implementer || '-'],
-    ['Status', initiative.status],
-    ['Urgency', initiative.urgency],
-    ['Budget', initiative.budget || '-'],
-    ['Demand Number', initiative.demandNumber || initiative.id],
-  ];
+  useEffect(() => {
+    if (!isExportMenuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setIsExportMenuOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsExportMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [isExportMenuOpen]);
 
   const updateField = (field: keyof MemoDraft, value: string) => {
     setDraft((prev) => ({ ...prev, [field]: value }));
   };
 
   const resetDefaults = () => {
-    setDraft(createMemoDraft(initiative, currentUser));
+    setDraft(ensureMemoTable(createMemoDraft(initiative, currentUser), initiative));
   };
 
-  const handleGenerate = async () => {
+  const updateTable = (mutator: (table: MemoTable) => MemoTable) => {
+    setDraft((prev) => ({ ...prev, table: mutator(prev.table) }));
+  };
+
+  const updateHeader = (colIdx: number, value: string) => {
+    updateTable((t) => ({
+      ...t,
+      headers: t.headers.map((h, i) => (i === colIdx ? value : h)),
+    }));
+  };
+
+  const updateCell = (rowIdx: number, colIdx: number, value: string) => {
+    updateTable((t) => ({
+      ...t,
+      rows: t.rows.map((row, r) =>
+        r === rowIdx ? row.map((cell, c) => (c === colIdx ? value : cell)) : row,
+      ),
+    }));
+  };
+
+  const addRow = () => {
+    updateTable((t) => ({
+      ...t,
+      rows: [...t.rows, t.headers.map(() => '')],
+    }));
+  };
+
+  const removeRow = (rowIdx: number) => {
+    updateTable((t) => ({
+      ...t,
+      rows: t.rows.filter((_, i) => i !== rowIdx),
+    }));
+  };
+
+  const addColumn = () => {
+    updateTable((t) => ({
+      headers: [...t.headers, `Column ${t.headers.length + 1}`],
+      rows: t.rows.map((row) => [...row, '']),
+    }));
+  };
+
+  const removeColumn = (colIdx: number) => {
+    updateTable((t) => {
+      if (t.headers.length <= 1) return t;
+      return {
+        headers: t.headers.filter((_, i) => i !== colIdx),
+        rows: t.rows.map((row) => row.filter((_, i) => i !== colIdx)),
+      };
+    });
+  };
+
+  const handleExport = async (format: MemoExportFormat) => {
+    setIsExportMenuOpen(false);
     try {
-      setIsGenerating(true);
+      setExportingAs(format);
       setErrorMessage(null);
-      const { fileName, dataUri } = await generateMemoPdf(initiative, draft);
-      saveMemoRecord(initiative, draft, fileName, dataUri);
-      setPreviewPdf(dataUri);
+      const { fileName, dataUri } = await exportMemo(initiative, draft, format);
+      saveMemoRecord(initiative, draft, fileName);
+      if (format === 'pdf' && dataUri) {
+        setPreviewPdf(dataUri);
+      }
       setPreviewFileName(fileName);
       onGenerated(fileName);
     } catch (error: any) {
-      setErrorMessage(error?.message || 'PDF generation failed.');
+      setErrorMessage(error?.message || 'Export failed.');
     } finally {
-      setIsGenerating(false);
+      setExportingAs(null);
     }
   };
 
@@ -139,21 +218,89 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
         </section>
 
         <aside className={styles.sidePane}>
-          <section className={styles.readOnlyCard}>
+          <section className={styles.tableCard}>
             <div className={styles.cardHead}>
               <div>
-                <span className={styles.cardEyebrow}>Read Only</span>
-                <h3>Initiative Snapshot</h3>
+                <span className={styles.cardEyebrow}>Editable</span>
+                <h3>2.1 Table</h3>
               </div>
-              <Lock size={16} />
+              <TableIcon size={16} />
             </div>
-            <div className={styles.snapshotTable}>
-              {snapshot.map(([label, value]) => (
-                <div key={label} className={styles.snapshotRow}>
-                  <span>{label}</span>
-                  <strong>{value}</strong>
-                </div>
-              ))}
+            <div className={styles.tableEditorActions}>
+              <button type="button" className="secondary-btn" onClick={addColumn}>
+                <Plus size={12} />
+                Column
+              </button>
+              <button type="button" className="secondary-btn" onClick={addRow}>
+                <Plus size={12} />
+                Row
+              </button>
+            </div>
+            <div className={styles.tableScroll}>
+              <table className={styles.editableTable}>
+                <thead>
+                  <tr>
+                    {draft.table.headers.map((header, colIdx) => (
+                      <th key={colIdx}>
+                        <div className={styles.tableHeadCell}>
+                          <input
+                            value={header}
+                            onChange={(e) => updateHeader(colIdx, e.target.value)}
+                            placeholder={`Column ${colIdx + 1}`}
+                            className={styles.tableHeadInput}
+                          />
+                          {draft.table.headers.length > 1 && (
+                            <button
+                              type="button"
+                              className={styles.iconBtn}
+                              onClick={() => removeColumn(colIdx)}
+                              title="Remove column"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
+                      </th>
+                    ))}
+                    <th className={styles.tableActionsCol} aria-label="Row actions" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {draft.table.rows.map((row, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {draft.table.headers.map((_, colIdx) => (
+                        <td key={colIdx}>
+                          <input
+                            value={row[colIdx] ?? ''}
+                            onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
+                            className={styles.tableCellInput}
+                          />
+                        </td>
+                      ))}
+                      <td className={styles.tableActionsCol}>
+                        <button
+                          type="button"
+                          className={styles.iconBtn}
+                          onClick={() => removeRow(rowIdx)}
+                          title="Remove row"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {draft.table.rows.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={draft.table.headers.length + 1}
+                        className={styles.tableEmpty}
+                      >
+                        No rows yet. Click "Row" to add the first row.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
 
@@ -193,15 +340,52 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
         <button type="button" className="secondary-btn" onClick={onCancel}>
           Cancel
         </button>
-        <button
-          type="button"
-          className="liquid-btn"
-          onClick={handleGenerate}
-          disabled={isGenerating || !draft.subject.trim()}
-        >
-          <FileText size={14} />
-          {isGenerating ? 'Generating PDF...' : 'Generate PDF'}
-        </button>
+        <div className={styles.exportWrap} ref={exportMenuRef}>
+          <button
+            type="button"
+            className="liquid-btn"
+            onClick={() => setIsExportMenuOpen((open) => !open)}
+            disabled={!!exportingAs || !draft.subject.trim()}
+            aria-haspopup="menu"
+            aria-expanded={isExportMenuOpen}
+          >
+            <Download size={14} />
+            {exportingAs === 'pdf'
+              ? 'Exporting PDF...'
+              : exportingAs === 'word'
+                ? 'Exporting Word...'
+                : 'Export'}
+            <ChevronDown size={14} />
+          </button>
+          {isExportMenuOpen && (
+            <div className={styles.exportMenu} role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.exportMenuItem}
+                onClick={() => handleExport('word')}
+              >
+                <FileText size={14} />
+                <div>
+                  <strong>Word (.docx)</strong>
+                  <span>Editable document with template header & footer</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className={styles.exportMenuItem}
+                onClick={() => handleExport('pdf')}
+              >
+                <FileText size={14} />
+                <div>
+                  <strong>PDF (.pdf)</strong>
+                  <span>Print-ready, with template header & footer</span>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

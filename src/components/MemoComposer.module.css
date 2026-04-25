@@ -201,12 +201,177 @@
   text-align: center;
 }
 
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tableEditorActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.editableTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.editableTable th,
+.editableTable td {
+  border: 1px solid var(--border-light);
+  padding: 0;
+  vertical-align: top;
+  background: var(--bg-primary);
+}
+
+.editableTable thead th {
+  background: var(--bg-secondary);
+}
+
+.tableHeadCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+.tableHeadInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.tableCellInput {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.tableHeadInput:focus,
+.tableCellInput:focus {
+  background: color-mix(in srgb, var(--accent-500) 8%, transparent);
+}
+
+.tableActionsCol {
+  width: 36px;
+  text-align: center;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.iconBtn:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.tableEmpty {
+  padding: 14px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-style: italic;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 10px;
   padding-top: 8px;
   border-top: 1px solid var(--border-light);
+}
+
+.exportWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.exportMenu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 280px;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md, 0 12px 24px rgba(0, 0, 0, 0.12));
+}
+
+.exportMenuItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  font-family: inherit;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.exportMenuItem:hover,
+.exportMenuItem:focus-visible {
+  background: color-mix(in srgb, var(--accent-500) 8%, transparent);
+  border-color: color-mix(in srgb, var(--accent-500) 24%, transparent);
+  outline: none;
+}
+
+.exportMenuItem > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exportMenuItem strong {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.exportMenuItem span {
+  font-size: 11px;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1100px) {

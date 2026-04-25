@@ -70,6 +70,11 @@ export interface Owner {
 
 export type Role = 'User' | 'Manager' | 'Admin';
 
+export interface MemoTable {
+  headers: string[];
+  rows: string[][];
+}
+
 export interface MemoDraft {
   initiativeId: string;
   to: string;
@@ -81,6 +86,7 @@ export interface MemoDraft {
   body: string;
   conclusion: string;
   attachment: string;
+  table: MemoTable;
 }
 
 export interface MemoRecord {
@@ -91,7 +97,7 @@ export interface MemoRecord {
   fileName: string;
   createdAt: string;
   updatedAt: string;
-  pdfDataUri: string;
+  pdfDataUri?: string;
   draft: MemoDraft;
 }
 

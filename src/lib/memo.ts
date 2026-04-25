@@ -1,6 +1,36 @@
-import type { Initiative, MemoDraft, MemoRecord } from '../types';
+import type { Initiative, MemoDraft, MemoRecord, MemoTable } from '../types';
 import { storage, uid } from './storage';
-import { exportRenderedTemplateToPdf, MEMO_TEMPLATE_PATH, renderMemoTemplate } from './memoTemplate';
+import { exportMemoToPdf } from './memoTemplate';
+import { exportMemoToWord } from './memoWord';
+
+export type MemoExportFormat = 'pdf' | 'word';
+
+function buildDefaultTable(initiative: Initiative): MemoTable {
+  return {
+    headers: ['Field', 'Value'],
+    rows: [
+      ['Initiative', initiative.name || '-'],
+      ['Category', initiative.category || '-'],
+      ['Owner', initiative.owner || 'Unassigned'],
+      ['Implementer', initiative.implementer || '-'],
+      ['Demand Number', initiative.demandNumber || initiative.id],
+      ['Status', initiative.status || '-'],
+      ['Urgency', initiative.urgency || '-'],
+      ['Budget', initiative.budget || '-'],
+    ],
+  };
+}
+
+export function ensureMemoTable(draft: MemoDraft, initiative: Initiative): MemoDraft {
+  let next = draft;
+  if (!next.table || !Array.isArray(next.table.headers) || !Array.isArray(next.table.rows)) {
+    next = { ...next, table: buildDefaultTable(initiative) };
+  }
+  if (typeof next.conclusion !== 'string') {
+    next = { ...next, conclusion: buildDefaultConclusion(initiative) };
+  }
+  return next;
+}
 
 interface CurrentUserLike {
   displayName: string;
@@ -54,6 +84,7 @@ export function createMemoDraft(initiative: Initiative, currentUser?: CurrentUse
     body: buildDefaultBody(initiative),
     conclusion: buildDefaultConclusion(initiative),
     attachment: initiative.comments?.trim() || `Initiative details for ${initiative.name}`,
+    table: buildDefaultTable(initiative),
   };
 }
 
@@ -71,34 +102,30 @@ export async function generateMemoPdf(
   draft: MemoDraft,
 ): Promise<{ fileName: string; dataUri: string }> {
   const fileName = sanitizeFileName(`${draft.reference || initiative.id}_memo.pdf`);
-  const scratch = document.createElement('div');
-  scratch.style.position = 'fixed';
-  scratch.style.left = '0';
-  scratch.style.top = '24px';
-  scratch.style.width = '900px';
-  scratch.style.maxWidth = '900px';
-  scratch.style.pointerEvents = 'none';
-  scratch.style.background = '#ffffff';
-  scratch.style.zIndex = '-1';
-  scratch.style.overflow = 'hidden';
-  scratch.style.transform = 'translateX(-200vw)';
-  scratch.setAttribute('data-template-path', MEMO_TEMPLATE_PATH);
-  document.body.appendChild(scratch);
+  const dataUri = await exportMemoToPdf(initiative, draft, fileName);
+  return { fileName, dataUri };
+}
 
-  try {
-    await renderMemoTemplate(scratch, initiative, draft);
-    const dataUri = await exportRenderedTemplateToPdf(scratch, fileName);
-    return { fileName, dataUri };
-  } finally {
-    scratch.remove();
+export async function exportMemo(
+  initiative: Initiative,
+  draft: MemoDraft,
+  format: MemoExportFormat,
+): Promise<{ fileName: string; dataUri: string | null }> {
+  const baseName = sanitizeFileName(`${draft.reference || initiative.id}_memo`);
+  if (format === 'word') {
+    const fileName = `${baseName}.docx`;
+    await exportMemoToWord(initiative, draft, fileName);
+    return { fileName, dataUri: null };
   }
+  const fileName = `${baseName}.pdf`;
+  const dataUri = await exportMemoToPdf(initiative, draft, fileName);
+  return { fileName, dataUri };
 }
 
 export function saveMemoRecord(
   initiative: Initiative,
   draft: MemoDraft,
   fileName: string,
-  dataUri: string,
 ): MemoRecord {
   const memos = storage.loadMemos();
   const now = new Date().toISOString();
@@ -110,7 +137,6 @@ export function saveMemoRecord(
     fileName,
     createdAt: now,
     updatedAt: now,
-    pdfDataUri: dataUri,
     draft,
   };
 
