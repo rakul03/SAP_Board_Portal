@@ -73,6 +73,37 @@ export interface Owner {
 
 export type Role = 'User' | 'Manager' | 'Admin';
 
+export interface MemoTable {
+  headers: string[];
+  rows: string[][];
+}
+
+export interface MemoDraft {
+  initiativeId: string;
+  to: string;
+  from: string;
+  date: string;
+  reference: string;
+  subject: string;
+  introduction: string;
+  body: string;
+  conclusion: string;
+  attachment: string;
+  table: MemoTable;
+}
+
+export interface MemoRecord {
+  id: string;
+  initiativeId: string;
+  initiativeName: string;
+  category: Category;
+  fileName: string;
+  createdAt: string;
+  updatedAt: string;
+  pdfDataUri?: string;
+  draft: MemoDraft;
+}
+
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastItem {

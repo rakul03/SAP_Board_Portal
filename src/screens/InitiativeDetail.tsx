@@ -28,6 +28,7 @@ import { Badge } from '../components/Badge';
 import type { BadgeVariant } from '../components/Badge';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { InitiativeForm } from '../components/InitiativeForm';
+import { MemoComposer } from '../components/MemoComposer';
 import { Modal } from '../components/Modal';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
@@ -81,6 +82,7 @@ export function InitiativeDetail({ initiativeId, onBack }: InitiativeDetailProps
     updateInitiative,
     deleteInitiative,
     addAuditLog,
+    currentUser,
   } = useData();
   const { showToast } = useToast();
   const { canEdit, canDelete } = usePermissions();
@@ -88,6 +90,7 @@ export function InitiativeDetail({ initiativeId, onBack }: InitiativeDetailProps
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
+  const [memoOpen, setMemoOpen] = useState(false);
 
   const initiative = initiatives.find((i) => i.id === initiativeId);
 
@@ -217,6 +220,12 @@ ${initiative.comments || 'No content provided.'}
         </div>
 
         <div className={styles.actions}>
+          {initiative.category === 'Licenses' && (
+            <button className="secondary-btn" onClick={() => setMemoOpen(true)}>
+              <FileText size={14} />
+              Create Memo
+            </button>
+          )}
           <button className="secondary-btn" onClick={handleCopyAll} title="Copy all details">
             <Copy size={14} />
             Copy All
@@ -425,6 +434,22 @@ ${initiative.comments || 'No content provided.'}
             showToast('Update saved.', 'success');
           }}
           onCancel={() => setLogOpen(false)}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={memoOpen}
+        onClose={() => setMemoOpen(false)}
+        title="Create Memo"
+        size="xl"
+      >
+        <MemoComposer
+          initiative={initiative}
+          currentUser={currentUser}
+          onCancel={() => setMemoOpen(false)}
+          onGenerated={(fileName) => {
+            showToast(`Memo PDF generated and saved as ${fileName}.`, 'success');
+          }}
         />
       </Modal>
 
