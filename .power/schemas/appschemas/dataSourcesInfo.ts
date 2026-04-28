@@ -19,6 +19,13 @@ export const dataSourcesInfo = {
     "dataSourceType": "Dataverse",
     "apis": {}
   },
+  "sap_conract_saps": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "sap_conract_sapid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
   "sap_favorite_saps": {
     "tableId": "",
     "version": "",
@@ -60,6 +67,43 @@ export const dataSourcesInfo = {
     "primaryKey": "sap_sapportfolioownerid",
     "dataSourceType": "Dataverse",
     "apis": {}
+  },
+  "shapoint_connection_ref": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {
+      "Run": {
+        "path": "/{connectionId}/triggers/manual/run",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "connectionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "input",
+            "in": "body",
+            "required": true,
+            "type": "object"
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responseInfo": {
+          "202": {
+            "type": "void"
+          }
+        }
+      }
+    }
   },
   "office365users": {
     "tableId": "",

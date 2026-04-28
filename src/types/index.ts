@@ -112,4 +112,15 @@ export interface ToastItem {
   type: ToastType;
 }
 
-export type TabId = 'home' | 'initiatives' | 'audit-logs' | 'dashboard' | 'admin';
+export type TabId = 'home' | 'initiatives' | 'audit-logs' | 'dashboard' | 'admin' | 'documents' | 'flowtest';
+
+export interface Contract {
+  id: string;
+  contractId: string;
+  contractName: string;
+  contractDescription: string;
+  contractStartDate: string;
+  contractEndDate: string;
+  licenseId?: string;
+  licenseName?: string;
+}

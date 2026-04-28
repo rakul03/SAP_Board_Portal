@@ -55,12 +55,12 @@ function tooltipStyle(): React.CSSProperties {
 }
 
 export function Dashboard() {
-  const { initiatives, auditLogs, owners } = useData();
+  const { initiatives, auditLogs, owners, contracts } = useData();
   const [drillDown, setDrillDown] = useState<DrillDownFilter>({ type: '', value: '' });
   const [isExporting, setIsExporting] = useState(false);
 
   // New hooks for enhanced dashboard
-  const metrics = useDashboardMetrics(initiatives);
+  const metrics = useDashboardMetrics(initiatives, contracts);
 
 
   const categoryData = useMemo(
@@ -258,6 +258,20 @@ export function Dashboard() {
                 <div>
                   <span className={styles.heroStatLabel}>Top owner</span>
                   <strong title={topOwner}>{topOwner}</strong>
+                </div>
+              </div>
+              <div className={styles.heroStatCard}>
+                <Sparkles size={16} />
+                <div>
+                  <span className={styles.heroStatLabel}>Contracts</span>
+                  <strong>{metrics.totalContracts}</strong>
+                </div>
+              </div>
+              <div className={styles.heroStatCard}>
+                <Target size={16} />
+                <div>
+                  <span className={styles.heroStatLabel}>Renewal window</span>
+                  <strong>{metrics.expiringSoonContracts} expiring</strong>
                 </div>
               </div>
             </div>

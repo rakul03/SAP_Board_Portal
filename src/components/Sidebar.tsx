@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { BarChart3, ClipboardList, History, House, PanelLeftClose, PanelLeftOpen, ShieldCheck } from 'lucide-react';
+import { BarChart3, Beaker, ClipboardList, FileText, History, House, PanelLeftClose, PanelLeftOpen, ShieldCheck } from 'lucide-react';
 import { useData } from '../context/DataContext';
 import type { TabId } from '../types';
 import dewaLogo from '../assets/DEWA_LOGO.jpg';
@@ -19,6 +19,8 @@ export function Sidebar({ active, expanded, onNavigate, onBackdrop, isMobile }: 
   const ITEMS: Array<{ id: TabId; label: string; icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }> = [
     { id: 'home', label: 'Home', icon: House },
     { id: 'initiatives', label: 'Initiatives', icon: ClipboardList },
+    { id: 'documents', label: 'Documents', icon: FileText },
+    { id: 'flowtest', label: 'Flow Test', icon: Beaker },
     { id: 'audit-logs', label: 'Audit Logs', icon: History },
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     ...(userRole === 'Admin' ? [{ id: 'admin' as TabId, label: 'User Management', icon: ShieldCheck }] : []),
@@ -27,6 +29,8 @@ export function Sidebar({ active, expanded, onNavigate, onBackdrop, isMobile }: 
   const counts: Record<TabId, string> = {
     home: `${initiatives.length}`,
     initiatives: `${initiatives.length}`,
+    documents: '',
+    flowtest: '',
     'audit-logs': `${auditLogs.length}`,
     dashboard: `${owners.length}`,
     admin: '',

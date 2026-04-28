@@ -126,6 +126,23 @@
   box-shadow: 0 8px 24px -6px color-mix(in srgb, var(--accent-600) 32%, transparent);
 }
 
+/* Count badge inside action buttons (e.g. Contracts button) */
+.btnCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--accent-600);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  margin-left: 2px;
+}
 
 .toolbar {
   position: relative;

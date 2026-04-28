@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import type { Initiative, MemoDraft, MemoTable } from '../types';
-import memoTemplateUrl from '../template/MEMO template- 1.docx?url';
+import memoTemplateUrl from '../template/MEMO template- 1.docx';
 import memoHeaderUrl from '../template/assets/memo-header.jpg';
 import memoFooterUrl from '../template/assets/memo-footer.jpg';
 
@@ -36,16 +36,40 @@ let cachedHeader: Promise<CachedImage> | null = null;
 let cachedFooter: Promise<CachedImage> | null = null;
 
 async function fetchImageAsDataUrl(url: string): Promise<CachedImage> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to load template asset: ${url}`);
-  const blob = await response.blob();
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
+  // Already a base64 data URI (inlined by Vite at build time) — return as-is.
+  // No network request, no CSP issue.
+  if (url.startsWith('data:')) {
+    return { dataUrl: url, format: 'JPEG' };
+  }
+
+  // For URL-based assets: use Image + canvas instead of fetch().
+  // Power Apps CSP blocks fetch() to powerplatformusercontent.com (connect-src),
+  // but image loading via <img> uses img-src which allows the CDN domain.
+  return new Promise<CachedImage>((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas 2D context unavailable');
+        ctx.drawImage(img, 0, 0);
+        resolve({ dataUrl: canvas.toDataURL('image/jpeg', 0.92), format: 'JPEG' });
+      } catch (err) {
+        // Canvas taint (CORS) — jsPDF can still use the HTMLImageElement directly
+        resolve({ dataUrl: url, format: 'JPEG' });
+      }
+    };
+
+    img.onerror = () => reject(new Error(`Failed to load memo template image: ${url}`));
+
+    // Load without crossOrigin to avoid CORS preflight blocking the image.
+    // The canvas.toDataURL call may fail with a taint error if the server
+    // doesn't return CORS headers — the catch above handles that gracefully.
+    img.src = url;
   });
-  return { dataUrl, format: 'JPEG' };
 }
 
 function getHeaderImage() {
@@ -355,13 +379,21 @@ export async function buildMemoPdf(initiative: Initiative, draft: MemoDraft): Pr
   return doc;
 }
 
+export async function generateMemoDataUri(
+  initiative: Initiative,
+  draft: MemoDraft,
+): Promise<string> {
+  const doc = await buildMemoPdf(initiative, draft);
+  return doc.output('datauristring');
+}
+
 export async function exportMemoToPdf(
   initiative: Initiative,
   draft: MemoDraft,
   fileName: string,
 ): Promise<string> {
+  const dataUri = await generateMemoDataUri(initiative, draft);
   const doc = await buildMemoPdf(initiative, draft);
-  const dataUri = doc.output('datauristring');
   doc.save(fileName);
   return dataUri;
 }

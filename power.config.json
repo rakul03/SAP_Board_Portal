@@ -17,6 +17,25 @@
         "office365users"
       ],
       "dataSets": {}
+    },
+    "de330ded-e2e4-4a01-b30d-a89918b755ea": {
+      "id": "/providers/microsoft.powerapps/apis/shared_sharepointonline",
+      "displayName": "SharePoint"
+    },
+    "591c72ef-bb42-40a2-adf8-87f4e398dfc8": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+      "displayName": "Logic flows",
+      "dataSources": [
+        "shapoint_connection_ref"
+      ],
+      "workflowDetails": {
+        "workflowEntityId": "ce0dc7f2-cf42-f111-bec6-7ced8d191f55",
+        "workflowDisplayName": "Shapoint_Connection_Ref",
+        "workflowName": "d792d6a6-31a5-30e3-0c76-0caeafb3b826",
+        "dependencies": {
+          "shared_sharepointonline-1": "de330ded-e2e4-4a01-b30d-a89918b755ea"
+        }
+      }
     }
   },
   "databaseReferences": {
@@ -45,6 +64,11 @@
         "appuser_saps": {
           "entitySetName": "sap_appuser_saps",
           "logicalName": "sap_appuser_sap",
+          "isHidden": false
+        },
+        "conract_saps": {
+          "entitySetName": "sap_conract_saps",
+          "logicalName": "sap_conract_sap",
           "isHidden": false
         }
       },

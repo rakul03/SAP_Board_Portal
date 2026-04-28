@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { lazy, Suspense } from 'react';
+
 import {
   AlertCircle,
   ArrowLeft,
@@ -28,7 +30,11 @@ import { Badge } from '../components/Badge';
 import type { BadgeVariant } from '../components/Badge';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { InitiativeForm } from '../components/InitiativeForm';
-import { MemoComposer } from '../components/MemoComposer';
+// Lazy-loaded so the large inlined memo assets (images + docx ~2 MB base64)
+// are kept in their own chunk and only fetched when the user opens Create Memo.
+const MemoComposer = lazy(() =>
+  import('../components/MemoComposer').then((m) => ({ default: m.MemoComposer })),
+);
 import { Modal } from '../components/Modal';
 import { useData } from '../context/DataContext';
 import { useToast } from '../context/ToastContext';
@@ -443,14 +449,16 @@ ${initiative.comments || 'No content provided.'}
         title="Create Memo"
         size="xl"
       >
-        <MemoComposer
-          initiative={initiative}
-          currentUser={currentUser}
-          onCancel={() => setMemoOpen(false)}
-          onGenerated={(fileName) => {
-            showToast(`Memo PDF generated and saved as ${fileName}.`, 'success');
-          }}
-        />
+        <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading memo composer…</div>}>
+          <MemoComposer
+            initiative={initiative}
+            currentUser={currentUser}
+            onCancel={() => setMemoOpen(false)}
+            onGenerated={(fileName) => {
+              showToast(`Memo PDF generated and saved as ${fileName}.`, 'success');
+            }}
+          />
+        </Suspense>
       </Modal>
 
       <ConfirmDialog

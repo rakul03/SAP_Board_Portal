@@ -1,0 +1,218 @@
+/* Professional memo template page */
+.page {
+  background: #fff;
+  width: 100%;
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Calibri', 'Segoe UI', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #1a1a1a;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.headerImg {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
+.body {
+  flex: 1;
+  padding: 24px 36px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Metadata Grid (To/From/Date/Ref) ── */
+.metaGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.metaRow,
+.subjectRow {
+  display: grid;
+  grid-template-columns: 70px 10px 1fr;
+  align-items: baseline;
+  gap: 0;
+  min-height: 22px;
+  font-size: 12px;
+}
+
+.subjectRow {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.metaLabel {
+  font-weight: 600;
+  font-size: 11px;
+  color: #2a2a2a;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.metaColon {
+  padding: 0 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+.metaValue {
+  font-size: 11.5px;
+  color: #333;
+  word-break: break-word;
+}
+
+.subjectValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  word-break: break-word;
+}
+
+.placeholder {
+  color: #b0b0b0;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.divider {
+  display: none;
+}
+
+/* ── Content Sections ── */
+.section {
+  margin-bottom: 16px;
+}
+
+.sectionHeading {
+  font-weight: 700;
+  font-size: 12px;
+  margin: 0 0 8px 0;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.subHeading {
+  font-weight: 700;
+  font-size: 11.5px;
+  margin: 12px 0 8px 0;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.sectionText {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #333;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: justify;
+}
+
+/* ── Table Styling ── */
+.tableSection {
+  margin: 14px 0;
+}
+
+.memoTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 6px;
+  background: #fff;
+}
+
+.memoTable th {
+  background: linear-gradient(to bottom, #4a4a4a, #3a3a3a);
+  color: #fff;
+  border: 1px solid #555;
+  padding: 8px 10px;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0.3px;
+  font-size: 11px;
+}
+
+.memoTable td {
+  border: 1px solid #d0d0d0;
+  padding: 8px 10px;
+  color: #2a2a2a;
+  vertical-align: top;
+}
+
+.memoTable tbody tr:nth-child(even) td {
+  background: #f8f8f8;
+}
+
+.memoTable tbody tr:nth-child(odd) td {
+  background: #fff;
+}
+
+.memoTable tbody tr:hover td {
+  background: #f0f0f0;
+}
+
+.tableEmpty {
+  text-align: center;
+  color: #888;
+  font-style: italic;
+  padding: 12px;
+  background: #f5f5f5;
+}
+
+/* ── Footer ── */
+.footerArea {
+  margin-top: auto;
+  padding: 8px 36px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid #d0d0d0;
+}
+
+.footerImg {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+  max-height: 50px;
+}
+
+.confidential {
+  font-size: 9px;
+  color: #666;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── Print Optimization ── */
+@media print {
+  .page {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+}

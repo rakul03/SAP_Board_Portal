@@ -1,12 +1,25 @@
 import JSZip from 'jszip';
 import type { Initiative, MemoDraft, MemoTable } from '../types';
-import memoTemplateUrl from '../template/MEMO template- 1.docx?url';
+// Import without ?url so the inlineBinaryPlugin embeds it as a base64 data URI.
+// This avoids runtime fetch() which Power Apps CSP blocks (connect-src).
+import memoTemplateUrl from '../template/MEMO template- 1.docx';
 
 let cachedTemplate: Promise<ArrayBuffer> | null = null;
+
+function dataUriToArrayBuffer(dataUri: string): ArrayBuffer {
+  const base64 = dataUri.split(',')[1];
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
 
 async function loadTemplateBuffer(): Promise<ArrayBuffer> {
   if (!cachedTemplate) {
     cachedTemplate = (async () => {
+      if (memoTemplateUrl.startsWith('data:')) {
+        return dataUriToArrayBuffer(memoTemplateUrl);
+      }
       const response = await fetch(memoTemplateUrl);
       if (!response.ok) throw new Error('Unable to load memo template (.docx).');
       return response.arrayBuffer();

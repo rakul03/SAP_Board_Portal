@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { Initiative } from '../types';
+import type { AuditLog, Initiative } from '../types';
 
 const COLUMNS: Array<{ header: string; key: keyof Initiative | 'fallback'; width: number }> = [
   { header: 'ID', key: 'demandNumber', width: 18 },
@@ -36,6 +36,10 @@ function resolveValue(initiative: Initiative, col: (typeof COLUMNS)[number], idx
   if (value == null) return '';
   if (key === 'logDate' || key === 'updatedAt') return formatDate(String(value));
   return String(value);
+}
+
+function sortLogsDescending(logs: AuditLog[]): AuditLog[] {
+  return [...logs].sort((a, b) => +new Date(b.logDate) - +new Date(a.logDate));
 }
 
 type SheetCell = XLSX.CellObject & {
@@ -176,9 +180,72 @@ function setSheetRef(ws: SheetLike, maxRow: number, maxCol: number) {
   });
 }
 
-export function exportInitiativesToXlsx(initiatives: Initiative[], filename: string) {
+function buildAuditLogSheet(logs: AuditLog[]) {
+  const rows: (string | number)[][] = [
+    ['Initiative', 'Log Date', 'Severity', 'Status', 'Description', 'Category', 'Owner'],
+    ...logs.map((log) => [
+      log.initiativeName || log.initiativeId,
+      formatDate(log.logDate),
+      log.logSeverity,
+      log.status,
+      log.logDescription,
+      log.category || '',
+      log.ownerName || '',
+    ]),
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  (ws as unknown as { '!cols': { wch: number }[] })['!cols'] = [
+    { wch: 32 },
+    { wch: 20 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 60 },
+    { wch: 16 },
+    { wch: 20 },
+  ];
+
+  const range = XLSX.utils.decode_range(ws['!ref'] ?? 'A1');
+  for (let c = range.s.c; c <= range.e.c; c++) {
+    const addr = XLSX.utils.encode_cell({ r: 0, c });
+    const cell = ws[addr];
+    if (!cell) continue;
+    cell.s = {
+      fill: { patternType: 'solid', fgColor: { rgb: '0F766E' } },
+      font: { name: 'Calibri', sz: 11, bold: true, color: { rgb: 'FFFFFF' } },
+      alignment: { horizontal: 'center', vertical: 'center' },
+      border: {
+        bottom: { style: 'medium', color: { rgb: '10B981' } },
+      },
+    };
+  }
+
+  return ws;
+}
+
+export function exportInitiativesToXlsx(
+  initiatives: Initiative[],
+  filename: string,
+  auditLogs: AuditLog[] = [],
+) {
+  const latestLogByInitiative = new Map<string, AuditLog>();
+  const sortedLogs = sortLogsDescending(auditLogs);
+  for (const log of sortedLogs) {
+    if (!latestLogByInitiative.has(log.initiativeId)) {
+      latestLogByInitiative.set(log.initiativeId, log);
+    }
+  }
+
   const headerRow = COLUMNS.map((c) => c.header);
-  const dataRows = initiatives.map((i) => COLUMNS.map((c, idx) => resolveValue(i, c, idx)));
+  const dataRows = initiatives.map((i) =>
+    COLUMNS.map((c, idx) => {
+      if (idx === 0) return i.demandNumber || i.id;
+      if (c.key === 'logDate') return latestLogByInitiative.get(i.id)?.logDate || i.logDate || '';
+      if (c.key === 'logDescription') return latestLogByInitiative.get(i.id)?.logDescription || i.logDescription || '';
+      if (c.key === 'severity') return latestLogByInitiative.get(i.id)?.logSeverity || i.severity || '';
+      return resolveValue(i, c, idx);
+    }),
+  );
   const aoa: (string | number)[][] = [headerRow, ...dataRows];
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -203,6 +270,11 @@ export function exportInitiativesToXlsx(initiatives: Initiative[], filename: str
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Initiatives');
+  const initiativeIds = new Set(initiatives.map((initiative) => initiative.id));
+  const filteredLogs = auditLogs.filter((log) => initiativeIds.has(log.initiativeId));
+  if (filteredLogs.length > 0) {
+    XLSX.utils.book_append_sheet(wb, buildAuditLogSheet(filteredLogs), 'Audit Logs');
+  }
   XLSX.writeFile(wb, filename, { cellStyles: true });
 }
 

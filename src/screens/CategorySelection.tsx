@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
   Brain,
+  FileSignature,
   FolderKanban,
   Key,
   List,
@@ -31,13 +32,14 @@ interface CategorySelectionProps {
   onViewAllInitiatives?: () => void;
   onManageOwners?: () => void;
   onAddInitiative?: () => void;
+  onViewContracts?: () => void;
+  onViewLicenses?: () => void;
 }
 
 interface CategoryMeta {
   description: string;
   Icon: ComponentType<{ size?: number | string }>;
   colorHex: string;
-  colorName: string;
 }
 
 const CATEGORY_META: Record<Category, CategoryMeta> = {
@@ -45,60 +47,59 @@ const CATEGORY_META: Record<Category, CategoryMeta> = {
     description: 'Artificial intelligence experiments and model integrations.',
     Icon: Brain,
     colorHex: '#0d9488',
-    colorName: 'teal',
   },
   Enhancements: {
     description: 'Incremental improvements to existing platforms and workflows.',
     Icon: Sparkles,
     colorHex: '#2563eb',
-    colorName: 'blue',
   },
   Projects: {
     description: 'Strategic delivery programs and capex initiatives.',
     Icon: FolderKanban,
     colorHex: '#4f46e5',
-    colorName: 'indigo',
   },
   Licenses: {
     description: 'License procurement, renewals, and compliance tracking.',
     Icon: Key,
     colorHex: '#7c3aed',
-    colorName: 'purple',
   },
   Services: {
     description: 'Managed services, support contracts, and operational engagements.',
     Icon: Wrench,
     colorHex: '#06b6d4',
-    colorName: 'cyan',
   },
   Securities: {
     description: 'Security posture, vulnerability remediation, and hardening work.',
     Icon: ShieldCheck,
     colorHex: '#dc2626',
-    colorName: 'red',
   },
   'Product Replacements': {
     description: 'Migrations and replacements of legacy products or vendors.',
     Icon: Replace,
     colorHex: '#ea580c',
-    colorName: 'orange',
   },
   Infrastructure: {
     description: 'Core infrastructure, networks, storage, and platform capacity.',
     Icon: Server,
     colorHex: '#475569',
-    colorName: 'slate',
   },
   Others: {
     description: 'Initiatives that do not fit the standard portfolio categories.',
     Icon: Package,
     colorHex: '#78716c',
-    colorName: 'stone',
   },
 };
 
-export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiatives, onManageOwners, onAddInitiative }: CategorySelectionProps) {
-  const { initiatives } = useData();
+export function CategorySelection({
+  onSelect,
+  onViewFavorites,
+  onViewAllInitiatives,
+  onManageOwners,
+  onAddInitiative,
+  onViewContracts,
+  onViewLicenses,
+}: CategorySelectionProps) {
+  const { initiatives, contracts } = useData();
   const [query, setQuery] = useState('');
 
   const counts = useMemo(() => {
@@ -110,6 +111,7 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
     return map;
   }, [initiatives]);
 
+  // All categories stay in the grid — Licenses included as a proper category card
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return CATEGORIES;
@@ -127,6 +129,7 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
         <span className={`${styles.blob} ${styles.blobTwo}`} />
       </div>
 
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -141,50 +144,44 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
         <span className={styles.titleUnderline} aria-hidden="true" />
       </motion.div>
 
+      {/* Action buttons row */}
       <motion.div
         className={styles.actionButtons}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
       >
-        <button
-          className="secondary-btn"
-          onClick={onViewFavorites}
-          title="View favorites"
-          aria-label="View favorites"
-        >
+        <button className="secondary-btn" onClick={onViewFavorites} aria-label="View favorites">
           <Star size={16} />
           <span>Favorites</span>
         </button>
-        <button
-          className="secondary-btn"
-          onClick={onViewAllInitiatives}
-          title="View all initiatives"
-          aria-label="View all initiatives"
-        >
+        <button className="secondary-btn" onClick={onViewAllInitiatives} aria-label="View all initiatives">
           <List size={16} />
           <span>All Initiatives</span>
         </button>
+        {/* Contracts as a button — same row as other navigation shortcuts */}
         <button
           className="secondary-btn"
-          onClick={onManageOwners}
-          title="Manage owners"
-          aria-label="Manage owners"
+          onClick={onViewContracts}
+          aria-label={`View contracts — ${contracts.length} total`}
         >
+          <FileSignature size={16} />
+          <span>Contracts</span>
+          {contracts.length > 0 && (
+            <span className={styles.btnCount}>{contracts.length}</span>
+          )}
+        </button>
+        <button className="secondary-btn" onClick={onManageOwners} aria-label="Manage owners">
           <Users size={16} />
           <span>Manage Owners</span>
         </button>
-        <button
-          className="liquid-btn"
-          onClick={onAddInitiative}
-          title="Add initiative"
-          aria-label="Add initiative"
-        >
+        <button className="liquid-btn" onClick={onAddInitiative} aria-label="Add initiative">
           <Plus size={16} />
           <span>Add Initiative</span>
         </button>
       </motion.div>
 
+      {/* Search toolbar */}
       <motion.div
         className={styles.toolbar}
         initial={{ opacity: 0, y: 6 }}
@@ -217,6 +214,7 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
         </span>
       </motion.div>
 
+      {/* Category grid — all categories including Licenses */}
       <motion.section
         className={styles.grid}
         initial="hidden"
@@ -231,13 +229,17 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
             const meta = CATEGORY_META[category];
             const Icon = meta.Icon;
             const count = counts.get(category) ?? 0;
+            // Licenses card navigates to the dedicated Licenses screen
+            const handleClick = category === 'Licenses' && onViewLicenses
+              ? onViewLicenses
+              : () => onSelect(category);
             return (
               <motion.button
                 key={category}
                 type="button"
                 layout
                 className={styles.card}
-                onClick={() => onSelect(category)}
+                onClick={handleClick}
                 variants={{
                   hidden: { opacity: 0, y: 14 },
                   show: { opacity: 1, y: 0 },
@@ -245,9 +247,7 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
                 exit={{ opacity: 0, y: -8, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                 whileTap={{ scale: 0.97 }}
-                style={{
-                  '--category-color': meta.colorHex,
-                } as React.CSSProperties}
+                style={{ '--category-color': meta.colorHex } as React.CSSProperties}
                 title={`${category} — ${count} initiative${count === 1 ? '' : 's'}`}
                 aria-label={`Open ${category} — ${count} initiative(s)`}
               >
@@ -278,7 +278,7 @@ export function CategorySelection({ onSelect, onViewFavorites, onViewAllInitiati
             animate={{ opacity: 1 }}
           >
             <Search size={22} />
-            <p>No categories match "{query}"</p>
+            <p>No categories match &ldquo;{query}&rdquo;</p>
           </motion.div>
         )}
       </motion.section>

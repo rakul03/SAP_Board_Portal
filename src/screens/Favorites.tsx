@@ -53,6 +53,7 @@ function toDateKey(value: string): string {
 export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
   const {
     initiatives,
+    auditLogs,
     owners,
     favorites,
     updateInitiative,
@@ -162,7 +163,7 @@ export function Favorites({ onOpenDetail, onBack }: FavoritesProps) {
   const handleExport = (scope: 'all' | 'view') => {
     const set = scope === 'all' ? favoriteInitiatives : filtered;
     const fname = `favorites_${todayStamp()}.xlsx`;
-    exportInitiativesToXlsx(set, fname);
+    exportInitiativesToXlsx(set, fname, auditLogs);
     setExportOpen(false);
     showToast(`Exported ${set.length} record(s).`, 'success');
   };

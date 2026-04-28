@@ -32,6 +32,12 @@ const AllInitiatives = lazy(() =>
 const InitiativeDetail = lazy(() =>
   import('./screens/InitiativeDetail').then((m) => ({ default: m.InitiativeDetail })),
 );
+const Contracts = lazy(() =>
+  import('./screens/Contracts').then((m) => ({ default: m.Contracts })),
+);
+const ContractDetail = lazy(() =>
+  import('./screens/ContractDetail').then((m) => ({ default: m.ContractDetail })),
+);
 const AuditLogs = lazy(() =>
   import('./screens/AuditLogs').then((m) => ({ default: m.AuditLogs })),
 );
@@ -40,6 +46,12 @@ const Dashboard = lazy(() =>
 );
 const UserManagement = lazy(() =>
   import('./screens/UserManagement').then((m) => ({ default: m.UserManagement })),
+);
+const DocumentsScreen = lazy(() =>
+  import('./screens/Documents').then((m) => ({ default: m.Documents })),
+);
+const FlowTestScreen = lazy(() =>
+  import('./screens/FlowTest').then((m) => ({ default: m.FlowTest })),
 );
 function ScreenFallback() {
   return <div className={styles.fallback} aria-busy="true" />;
@@ -65,6 +77,8 @@ function AppShell() {
   const [tab, setTab] = useState<TabId>('home');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [contractsOpen, setContractsOpen] = useState(false);
+  const [licensesOpen, setLicensesOpen] = useState(false);
   const [portfolioView, setPortfolioView] = useState<'categories' | 'favorites' | 'all-initiatives'>('categories');
   const [ownersOpen, setOwnersOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -90,10 +104,31 @@ function AppShell() {
 
   const toggleSidebar = () => setSidebarOpen((v) => !v);
 
+  const openCategory = (category: Category) => {
+    setContractsOpen(false);
+    setDetailId(null);
+    setSelectedCategory(category);
+  };
+
+  const openContracts = () => {
+    setSelectedCategory(null);
+    setDetailId(null);
+    setLicensesOpen(false);
+    setContractsOpen(true);
+  };
+
+  const openLicenses = () => {
+    setSelectedCategory(null);
+    setDetailId(null);
+    setLicensesOpen(true);
+  };
+
   const handleNavigate = (id: TabId) => {
     setTab(id);
     setDetailId(null);
     setSelectedCategory(null);
+    setContractsOpen(false);
+    setLicensesOpen(false);
     if (id === 'home') {
       setPortfolioView('categories');
     }
@@ -104,11 +139,19 @@ function AppShell() {
     tab === 'home'
       ? `home:${portfolioView}`
       : tab === 'initiatives'
-        ? detailId
-          ? `detail:${detailId}`
-          : selectedCategory
-            ? `initiatives:${selectedCategory}`
-            : 'initiatives:categories'
+        ? licensesOpen
+          ? detailId
+            ? `licenses:detail:${detailId}`
+            : 'licenses:list'
+          : contractsOpen
+            ? detailId
+              ? `contracts:detail:${detailId}`
+              : 'contracts:list'
+            : detailId
+              ? `detail:${detailId}`
+              : selectedCategory
+                ? `initiatives:${selectedCategory}`
+                : 'initiatives:categories'
         : tab;
 
   return (
@@ -139,13 +182,40 @@ function AppShell() {
               {tab === 'home' && <Home onNavigate={handleNavigate} />}
               {tab !== 'home' && (
                 <Suspense fallback={<ScreenFallback />}>
-                  {tab === 'initiatives' && !detailId && portfolioView === 'categories' && !selectedCategory && (
+                  {tab === 'initiatives' && !detailId && portfolioView === 'categories' && !selectedCategory && !contractsOpen && !licensesOpen && (
                     <CategorySelection
-                      onSelect={setSelectedCategory}
+                      onSelect={openCategory}
                       onViewFavorites={() => setPortfolioView('favorites')}
                       onViewAllInitiatives={() => setPortfolioView('all-initiatives')}
                       onManageOwners={() => setOwnersOpen(true)}
                       onAddInitiative={() => setCreateOpen(true)}
+                      onViewContracts={openContracts}
+                      onViewLicenses={() => openLicenses()}
+                    />
+                  )}
+                  {tab === 'initiatives' && licensesOpen && !detailId && (
+                    <Initiatives
+                      selectedCategory="Licenses"
+                      onOpenDetail={setDetailId}
+                      onBack={() => setLicensesOpen(false)}
+                    />
+                  )}
+                  {tab === 'initiatives' && licensesOpen && detailId && (
+                    <InitiativeDetail
+                      initiativeId={detailId}
+                      onBack={() => setDetailId(null)}
+                    />
+                  )}
+                  {tab === 'initiatives' && contractsOpen && !detailId && (
+                    <Contracts
+                      onOpenDetail={setDetailId}
+                      onBack={() => setContractsOpen(false)}
+                    />
+                  )}
+                  {tab === 'initiatives' && contractsOpen && detailId && (
+                    <ContractDetail
+                      contractId={detailId}
+                      onBack={() => setDetailId(null)}
                     />
                   )}
                   {tab === 'initiatives' && !detailId && portfolioView === 'favorites' && (
@@ -161,7 +231,7 @@ function AppShell() {
                       onOpenDetail={setDetailId}
                     />
                   )}
-                  {tab === 'initiatives' && detailId && (
+                  {tab === 'initiatives' && detailId && !licensesOpen && !contractsOpen && (
                     <InitiativeDetail
                       initiativeId={detailId}
                       onBack={() => setDetailId(null)}
@@ -170,6 +240,8 @@ function AppShell() {
                   {tab === 'audit-logs' && <AuditLogs />}
                   {tab === 'dashboard' && <Dashboard />}
                   {tab === 'admin' && userRole === 'Admin' && <UserManagement />}
+                  {tab === 'documents' && <DocumentsScreen onBack={() => handleNavigate('home')} />}
+                  {tab === 'flowtest' && <FlowTestScreen onBack={() => handleNavigate('home')} />}
                 </Suspense>
               )}
             </motion.div>

@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { AuditLog, Category, Initiative, Owner, Role, Severity, Status, Urgency } from '../types';
+import type { AuditLog, Category, Contract, Initiative, Owner, Role, Severity, Status, Urgency } from '../types';
 // Generated services - DIRECT IMPORTS ONLY
 import { Office365UsersService } from '../generated/services/Office365UsersService';
 import { Sap_initiative_sapsService } from '../generated/services/Sap_initiative_sapsService';
@@ -8,6 +8,7 @@ import { Sap_auditlog_sapsService } from '../generated/services/Sap_auditlog_sap
 import { Sap_portfolioowner_sapsService } from '../generated/services/Sap_portfolioowner_sapsService';
 import { Sap_favorite_sapsService } from '../generated/services/Sap_favorite_sapsService';
 import { Sap_appuser_sapsService } from '../generated/services/Sap_appuser_sapsService';
+import { Sap_conract_sapsService } from '../generated/services/Sap_conract_sapsService';
 import type { GraphUser_V1 } from '../generated/models/Office365UsersModel';
 import {
   Sap_initiative_sapssap_category,
@@ -28,6 +29,7 @@ interface DataContextValue {
   initiatives: Initiative[];
   auditLogs: AuditLog[];
   owners: Owner[];
+  contracts: Contract[];
   currentUser: CurrentUser | null;
   userRole: Role;
   hasAppAccess: boolean;
@@ -41,6 +43,9 @@ interface DataContextValue {
   addOwner: (name: string, email?: string) => Promise<Owner | null>;
   removeOwner: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
+  createContract: (contractData: Omit<Contract, 'id'>) => Promise<Contract | null>;
+  updateContract: (id: string, data: Partial<Omit<Contract, 'id'>>) => Promise<void>;
+  deleteContract: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
   isLoading: boolean;
 }
@@ -138,6 +143,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [owners, setOwners] = useState<Owner[]>([]);
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [userRole, setUserRole] = useState<Role>('User');
   const [hasAppAccess, setHasAppAccess] = useState(false);
@@ -154,13 +160,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       console.log('🔄 DataContext: Loading from Dataverse...');
 
       // Load all tables in parallel — no $select to avoid virtual-field OData errors
-      const [initiativesResult, auditLogsResult, ownersResult, profileResult, favoritesResult, appUsersResult] = await Promise.allSettled([
+      const [initiativesResult, auditLogsResult, ownersResult, profileResult, favoritesResult, appUsersResult, contractsResult] = await Promise.allSettled([
         Sap_initiative_sapsService.getAll({ filter: 'statecode eq 0' }),
         Sap_auditlog_sapsService.getAll({ filter: 'statecode eq 0' }),
         Sap_portfolioowner_sapsService.getAll({ filter: 'statecode eq 0' }),
         Office365UsersService.MyProfile_V2('displayName,mail,userPrincipalName,jobTitle'),
         Sap_favorite_sapsService.getAll({ filter: 'statecode eq 0' }),
         Sap_appuser_sapsService.getAll({ filter: 'statecode eq 0' }),
+        Sap_conract_sapsService.getAll({ filter: 'statecode eq 0' }),
       ]);
 
       console.log('🔍 Raw Dataverse results:', {
@@ -170,6 +177,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         profile: { status: profileResult.status },
         favorites: { status: favoritesResult.status },
         appUsers: { status: appUsersResult.status },
+        contracts: { status: contractsResult.status },
       });
 
       const initData = initiativesResult.status === 'fulfilled' ? initiativesResult.value : null;
@@ -178,6 +186,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const profileData = profileResult.status === 'fulfilled' ? profileResult.value : null;
       const favoritesData = favoritesResult.status === 'fulfilled' ? favoritesResult.value : null;
       const appUsersData = appUsersResult.status === 'fulfilled' ? appUsersResult.value : null;
+      const contractsData = contractsResult.status === 'fulfilled' ? contractsResult.value : null;
 
       const profile: GraphUser_V1 | undefined = profileData?.data;
       const profileEmail = normalizeEmail(profile?.mail || profile?.userPrincipalName);
@@ -306,22 +315,45 @@ export function DataProvider({ children }: { children: ReactNode }) {
         console.error('❌ Failed to load owners:', ownersData?.error);
       }
 
+      const ctrs: Contract[] = [];
+      if (contractsData?.success && Array.isArray(contractsData.data)) {
+        ctrs.push(...contractsData.data.map((item: any) => {
+          const licenseId = item._sap_contractlicense_value || '';
+          const selectedLicense = inits.find((i) => i.id === licenseId);
+          return {
+            id: item.sap_conract_sapid,
+            contractId: item.sap_contractid || '',
+            contractName: item.sap_contractname || '',
+            contractDescription: item.sap_contractdescription || '',
+            contractStartDate: item.sap_contractstartdate || '',
+            contractEndDate: item.sap_contractenddate || '',
+            licenseId: licenseId,
+            licenseName: selectedLicense?.name || item.sap_contractlicensename || '',
+          };
+        }));
+      } else if (!contractsData?.success) {
+        console.error('❌ Failed to load contracts:', contractsData?.error);
+      }
+
       console.log('✅ DataContext: Data loaded from Dataverse', {
         initiatives: inits.length,
         auditLogs: logs.length,
         owners: owns.length,
+        contracts: ctrs.length,
         favorites: nextFavorites.length,
       });
 
       setInitiatives(inits);
       setAuditLogs(logs);
       setOwners(owns);
+      setContracts(ctrs);
       setFavorites(nextFavorites);
     } catch (error) {
       console.error('❌ DataContext: Unexpected error loading from Dataverse:', error);
       setInitiatives([]);
       setAuditLogs([]);
       setOwners([]);
+      setContracts([]);
       setCurrentUser(null);
       setUserRole('User');
       setHasAppAccess(false);
@@ -774,6 +806,128 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [favorites, currentUser?.mail],
   );
 
+  const createContract = useCallback(
+    async (contractData: Omit<Contract, 'id'>): Promise<Contract | null> => {
+      try {
+        console.log('💾 Creating contract in Dataverse...', contractData);
+
+        if (!currentUserEmail) {
+          throw new Error('Unable to determine the current user email.');
+        }
+
+        const record: any = {
+          sap_contractid: contractData.contractId,
+          sap_contractname: contractData.contractName,
+          sap_contractdescription: contractData.contractDescription,
+          sap_contractstartdate: contractData.contractStartDate,
+          sap_contractenddate: contractData.contractEndDate,
+          statecode: 0,
+        };
+
+        if (contractData.licenseId) {
+          record['sap_ContractLicense@odata.bind'] = `/sap_initiative_saps(${contractData.licenseId})`;
+        }
+
+        console.log('📤 Sending contract to Dataverse:', JSON.stringify(record));
+
+        const result = await Sap_conract_sapsService.create(record);
+
+        if (!result?.success) {
+          const serverMsg = (result?.error as any)?.message || JSON.stringify(result?.error) || 'Unknown Dataverse error';
+          console.error('❌ Dataverse create failed. Server response:', result?.error);
+          throw new Error(`Dataverse rejected the create: ${serverMsg}`);
+        }
+
+        const newContract: Contract = {
+          id: (result.data as any)?.sap_conract_sapid,
+          contractId: contractData.contractId,
+          contractName: contractData.contractName,
+          contractDescription: contractData.contractDescription,
+          contractStartDate: contractData.contractStartDate,
+          contractEndDate: contractData.contractEndDate,
+          licenseId: contractData.licenseId,
+          licenseName: contractData.licenseName,
+        };
+
+        setContracts((prev) => [newContract, ...prev]);
+
+        console.log('✅ Contract created successfully');
+        return newContract;
+      } catch (error) {
+        console.error('❌ Error creating contract:', error);
+        return null;
+      }
+    },
+    [currentUserEmail, currentUser?.mail],
+  );
+
+  const updateContract = useCallback(
+    async (id: string, data: Partial<Omit<Contract, 'id'>>) => {
+      try {
+        console.log('🔄 Updating contract...', { id, data });
+
+        const contract = contracts.find((c) => c.id === id);
+        if (!contract) {
+          throw new Error('Contract not found');
+        }
+
+        const update: any = {};
+        if (data.contractId !== undefined) update.sap_contractid = data.contractId;
+        if (data.contractName !== undefined) update.sap_contractname = data.contractName;
+        if (data.contractDescription !== undefined) update.sap_contractdescription = data.contractDescription;
+        if (data.contractStartDate !== undefined) update.sap_contractstartdate = data.contractStartDate;
+        if (data.contractEndDate !== undefined) update.sap_contractenddate = data.contractEndDate;
+        if (data.licenseId !== undefined) {
+          update['sap_ContractLicense@odata.bind'] = data.licenseId
+            ? `/sap_initiative_saps(${data.licenseId})`
+            : null;
+        }
+
+        if (Object.keys(update).length === 0) {
+          console.log('ℹ️ No changes to update');
+          return;
+        }
+
+        console.log('📤 Sending update to Dataverse:', update);
+
+        await Sap_conract_sapsService.update(id, update);
+
+        setContracts((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, ...data } : c))
+        );
+
+        console.log('✅ Contract updated successfully');
+      } catch (error: any) {
+        console.error('❌ Error updating contract:', error);
+        throw error;
+      }
+    },
+    [contracts],
+  );
+
+  const deleteContract = useCallback(
+    async (id: string) => {
+      try {
+        console.log('🗑️ Deleting contract...', { id });
+
+        const contract = contracts.find((c) => c.id === id);
+        if (!contract) {
+          throw new Error('Contract not found');
+        }
+
+        await Sap_conract_sapsService.delete(id);
+
+        setContracts((prev) => prev.filter((c) => c.id !== id));
+
+        console.log('✅ Contract deleted successfully');
+      } catch (error: any) {
+        console.error('❌ Error deleting contract:', error);
+        throw error;
+      }
+    },
+    [contracts],
+  );
+
   const refresh = useCallback(async () => {
     if (refreshInFlight.current) return;
     refreshInFlight.current = true;
@@ -817,6 +971,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       initiatives,
       auditLogs,
       owners,
+      contracts,
       currentUser,
       userRole,
       hasAppAccess,
@@ -830,6 +985,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addOwner,
       removeOwner,
       toggleFavorite,
+      createContract,
+      updateContract,
+      deleteContract,
       refresh,
       isLoading,
     }),
@@ -837,6 +995,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       initiatives,
       auditLogs,
       owners,
+      contracts,
       currentUser,
       userRole,
       hasAppAccess,
@@ -850,6 +1009,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addOwner,
       removeOwner,
       toggleFavorite,
+      createContract,
+      updateContract,
+      deleteContract,
       refresh,
       isLoading,
     ],

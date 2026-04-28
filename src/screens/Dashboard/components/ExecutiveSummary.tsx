@@ -1,5 +1,12 @@
 import { motion } from 'framer-motion';
-import { ClipboardCheck, TrendingUp, AlertCircle, Users, TrendingDown } from 'lucide-react';
+import {
+  AlertCircle,
+  ClipboardCheck,
+  FileText,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
 import type { DashboardMetrics } from '../hooks/useDashboardMetrics';
 import styles from '../../Dashboard.module.css';
 
@@ -28,6 +35,14 @@ export function ExecutiveSummary({ metrics, onDrillDown }: ExecutiveSummaryProps
       onClick: () => onDrillDown('', ''),
     },
     {
+      icon: FileText,
+      label: 'Total Contracts',
+      value: metrics.totalContracts,
+      trend: { value: 0, percentage: 0, isPositive: true },
+      color: '#7c3aed',
+      onClick: () => {},
+    },
+    {
       icon: TrendingUp,
       label: 'Active',
       value: metrics.active,
@@ -36,12 +51,28 @@ export function ExecutiveSummary({ metrics, onDrillDown }: ExecutiveSummaryProps
       onClick: () => onDrillDown('status', 'Active'),
     },
     {
+      icon: ClipboardCheck,
+      label: 'Linked Contracts',
+      value: metrics.linkedContracts,
+      trend: { value: 0, percentage: 0, isPositive: true },
+      color: '#0f766e',
+      onClick: () => {},
+    },
+    {
       icon: AlertCircle,
       label: 'Pending Review',
       value: metrics.pending,
       trend: { value: 0, percentage: 0, isPositive: true },
       color: '#f59e0b',
       onClick: () => onDrillDown('status', 'Pending'),
+    },
+    {
+      icon: AlertCircle,
+      label: 'Expiring Soon',
+      value: metrics.expiringSoonContracts,
+      trend: { value: 0, percentage: 0, isPositive: true },
+      color: '#d97706',
+      onClick: () => {},
     },
     {
       icon: Users,
@@ -55,8 +86,11 @@ export function ExecutiveSummary({ metrics, onDrillDown }: ExecutiveSummaryProps
   const maxValue = Math.max(...cards.map((card) => card.value), 1);
   const cardCaptions: Record<string, string> = {
     'Total Initiatives': 'Portfolio baseline',
+    'Total Contracts': 'Commercial agreements on file',
     Active: 'Work currently in motion',
+    'Linked Contracts': 'Contracts tied to licenses',
     'Pending Review': 'Awaiting decision',
+    'Expiring Soon': 'Needs renewal attention',
     'Portfolio Owners': 'Assigned account holders',
   };
 

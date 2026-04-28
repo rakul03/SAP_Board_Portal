@@ -1,6 +1,6 @@
 import type { Initiative, MemoDraft, MemoRecord, MemoTable } from '../types';
 import { storage, uid } from './storage';
-import { exportMemoToPdf } from './memoTemplate';
+import { generateMemoDataUri, exportMemoToPdf } from './memoTemplate';
 import { exportMemoToWord } from './memoWord';
 
 export type MemoExportFormat = 'pdf' | 'word';
@@ -78,7 +78,7 @@ export function createMemoDraft(initiative: Initiative, currentUser?: CurrentUse
     to: initiative.owner || 'Concerned Stakeholders',
     from: currentUser?.jobTitle || currentUser?.displayName || 'CAIO',
     date: formatMemoDate(new Date()),
-    reference: initiative.demandNumber || initiative.id,
+    reference: initiative.name || initiative.demandNumber || initiative.id,
     subject: `${initiative.name} - License Memo`,
     introduction: buildDefaultIntroduction(initiative),
     body: buildDefaultBody(initiative),
@@ -102,7 +102,7 @@ export async function generateMemoPdf(
   draft: MemoDraft,
 ): Promise<{ fileName: string; dataUri: string }> {
   const fileName = sanitizeFileName(`${draft.reference || initiative.id}_memo.pdf`);
-  const dataUri = await exportMemoToPdf(initiative, draft, fileName);
+  const dataUri = await generateMemoDataUri(initiative, draft);
   return { fileName, dataUri };
 }
 

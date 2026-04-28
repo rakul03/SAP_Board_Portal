@@ -4,7 +4,6 @@ import {
   FileText,
   Plus,
   RefreshCcw,
-  Table as TableIcon,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -17,6 +16,7 @@ import {
   saveMemoRecord,
   type MemoExportFormat,
 } from '../lib/memo';
+import { MemoPreview } from './MemoPreview';
 import styles from './MemoComposer.module.css';
 
 interface CurrentUserLike {
@@ -40,8 +40,6 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
 
   const [draft, setDraft] = useState<MemoDraft>(initialDraft);
   const [exportingAs, setExportingAs] = useState<MemoExportFormat | null>(null);
-  const [previewPdf, setPreviewPdf] = useState<string | null>(null);
-  const [previewFileName, setPreviewFileName] = useState<string | null>(latestMemo?.fileName ?? null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
@@ -128,15 +126,12 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
     try {
       setExportingAs(format);
       setErrorMessage(null);
-      const { fileName, dataUri } = await exportMemo(initiative, draft, format);
+      const { fileName } = await exportMemo(initiative, draft, format);
       saveMemoRecord(initiative, draft, fileName);
-      if (format === 'pdf' && dataUri) {
-        setPreviewPdf(dataUri);
-      }
-      setPreviewFileName(fileName);
       onGenerated(fileName);
-    } catch (error: any) {
-      setErrorMessage(error?.message || 'Export failed.');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Export failed.';
+      setErrorMessage(message);
     } finally {
       setExportingAs(null);
     }
@@ -144,11 +139,12 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
 
   return (
     <div className={styles.wrap}>
+      {/* Toolbar */}
       <div className={styles.toolbar}>
         <div className={styles.toolbarCopy}>
           <span className={styles.badge}>Licenses Memo</span>
           <p>
-            The popup and generated PDF both use the approved memo template with your initiative details and editable memo inputs. Only the editable memo fields below can be changed.
+            Fill in the fields on the left — the preview on the right updates live. When satisfied, use Export to download.
           </p>
         </div>
         <button type="button" className="secondary-btn" onClick={resetDefaults}>
@@ -159,82 +155,87 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
 
       {errorMessage && <div className={styles.errorBanner}>{errorMessage}</div>}
 
+      {/* Main two-column layout */}
       <div className={styles.layout}>
+
+        {/* LEFT: form + table editor */}
         <section className={styles.editorPane}>
-          <div className={styles.headerGrid}>
-            <Field label="To">
-              <input value={draft.to} onChange={(e) => updateField('to', e.target.value)} className={styles.input} />
-            </Field>
-            <Field label="From">
-              <input value={draft.from} onChange={(e) => updateField('from', e.target.value)} className={styles.input} />
-            </Field>
-            <Field label="Date">
-              <input value={draft.date} onChange={(e) => updateField('date', e.target.value)} className={styles.input} />
-            </Field>
-            <Field label="Reference">
-              <input value={draft.reference} onChange={(e) => updateField('reference', e.target.value)} className={styles.input} />
+
+          {/* Header fields */}
+          <div className={styles.card}>
+            <div className={styles.cardHead}>
+              <span className={styles.cardEyebrow}>Memo Details</span>
+            </div>
+            <div className={styles.headerGrid}>
+              <Field label="To">
+                <input value={draft.to} onChange={(e) => updateField('to', e.target.value)} className={styles.input} />
+              </Field>
+              <Field label="From">
+                <input value={draft.from} onChange={(e) => updateField('from', e.target.value)} className={styles.input} />
+              </Field>
+              <Field label="Date">
+                <input value={draft.date} onChange={(e) => updateField('date', e.target.value)} className={styles.input} />
+              </Field>
+              <Field label="Reference">
+                <input value={draft.reference} onChange={(e) => updateField('reference', e.target.value)} className={styles.input} />
+              </Field>
+            </div>
+            <Field label="Subject">
+              <input value={draft.subject} onChange={(e) => updateField('subject', e.target.value)} className={styles.input} />
             </Field>
           </div>
 
-          <Field label="Subject">
-            <input value={draft.subject} onChange={(e) => updateField('subject', e.target.value)} className={styles.input} />
-          </Field>
-
-          <Field label="1.0 Introduction">
-            <textarea
-              rows={5}
-              value={draft.introduction}
-              onChange={(e) => updateField('introduction', e.target.value)}
-              className={styles.textarea}
-            />
-          </Field>
-
-          <Field label="2.0 Body">
-            <textarea
-              rows={8}
-              value={draft.body}
-              onChange={(e) => updateField('body', e.target.value)}
-              className={styles.textarea}
-            />
-          </Field>
-
-          <Field label="Conclusion">
-            <textarea
-              rows={4}
-              value={draft.conclusion}
-              onChange={(e) => updateField('conclusion', e.target.value)}
-              className={styles.textarea}
-            />
-          </Field>
-
-          <Field label="Attachment">
-            <textarea
-              rows={3}
-              value={draft.attachment}
-              onChange={(e) => updateField('attachment', e.target.value)}
-              className={styles.textarea}
-            />
-          </Field>
-        </section>
-
-        <aside className={styles.sidePane}>
-          <section className={styles.tableCard}>
+          {/* Text fields */}
+          <div className={styles.card}>
             <div className={styles.cardHead}>
-              <div>
-                <span className={styles.cardEyebrow}>Editable</span>
-                <h3>2.1 Table</h3>
-              </div>
-              <TableIcon size={16} />
+              <span className={styles.cardEyebrow}>Content</span>
             </div>
-            <div className={styles.tableEditorActions}>
-              <button type="button" className="secondary-btn" onClick={addColumn}>
-                <Plus size={12} />
-                Column
-              </button>
-              <button type="button" className="secondary-btn" onClick={addRow}>
-                <Plus size={12} />
-                Row
-              </button>
+            <Field label="1.0 Introduction">
+              <textarea
+                rows={4}
+                value={draft.introduction}
+                onChange={(e) => updateField('introduction', e.target.value)}
+                className={styles.textarea}
+              />
+            </Field>
+            <Field label="2.0 Body">
+              <textarea
+                rows={6}
+                value={draft.body}
+                onChange={(e) => updateField('body', e.target.value)}
+                className={styles.textarea}
+              />
+            </Field>
+            <Field label="Conclusion">
+              <textarea
+                rows={3}
+                value={draft.conclusion}
+                onChange={(e) => updateField('conclusion', e.target.value)}
+                className={styles.textarea}
+              />
+            </Field>
+            <Field label="Attachment">
+              <textarea
+                rows={2}
+                value={draft.attachment}
+                onChange={(e) => updateField('attachment', e.target.value)}
+                className={styles.textarea}
+              />
+            </Field>
+          </div>
+
+          {/* Table editor */}
+          <div className={styles.card}>
+            <div className={styles.cardHead}>
+              <span className={styles.cardEyebrow}>2.1 Table</span>
+              <div className={styles.tableActions}>
+                <button type="button" className="secondary-btn" onClick={addColumn}>
+                  <Plus size={12} /> Column
+                </button>
+                <button type="button" className="secondary-btn" onClick={addRow}>
+                  <Plus size={12} /> Row
+                </button>
+              </div>
             </div>
             <div className={styles.tableScroll}>
               <table className={styles.editableTable}>
@@ -262,7 +263,7 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
                         </div>
                       </th>
                     ))}
-                    <th className={styles.tableActionsCol} aria-label="Row actions" />
+                    <th className={styles.tableActionsCol} />
                   </tr>
                 </thead>
                 <tbody>
@@ -291,51 +292,33 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
                   ))}
                   {draft.table.rows.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={draft.table.headers.length + 1}
-                        className={styles.tableEmpty}
-                      >
-                        No rows yet. Click "Row" to add the first row.
+                      <td colSpan={draft.table.headers.length + 1} className={styles.tableEmpty}>
+                        No rows yet — click Row to add one.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className={styles.previewCard}>
-            <div className={styles.cardHead}>
-              <div>
-                <span className={styles.cardEyebrow}>Right Panel</span>
-                <h3>PDF Preview</h3>
-              </div>
-              <FileText size={16} />
+        {/* RIGHT: live preview */}
+        <aside className={styles.previewPane}>
+          <div className={styles.previewHeader}>
+            <div>
+              <span className={styles.cardEyebrow}>Live Preview</span>
+              <p className={styles.previewHint}>Updates as you type</p>
             </div>
-
-            {previewPdf ? (
-              <>
-                <div className={styles.previewMeta}>
-                  <span>{previewFileName || 'Generated memo PDF'}</span>
-                </div>
-                <iframe
-                  className={styles.pdfFrame}
-                  src={previewPdf}
-                  title="Generated memo PDF preview"
-                />
-                <a className="secondary-btn" href={previewPdf} download={previewFileName || 'memo.pdf'}>
-                  Download Current PDF
-                </a>
-              </>
-            ) : (
-              <div className={styles.previewEmpty}>
-                <p>Generate the memo PDF to preview it here.</p>
-              </div>
-            )}
-          </section>
+            <FileText size={16} />
+          </div>
+          <div className={styles.previewScroll}>
+            <MemoPreview draft={draft} />
+          </div>
         </aside>
       </div>
 
+      {/* Footer actions */}
       <div className={styles.actions}>
         <button type="button" className="secondary-btn" onClick={onCancel}>
           Cancel
@@ -368,7 +351,7 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
                 <FileText size={14} />
                 <div>
                   <strong>Word (.docx)</strong>
-                  <span>Editable document with template header & footer</span>
+                  <span>Editable document with template header &amp; footer</span>
                 </div>
               </button>
               <button
@@ -380,7 +363,7 @@ export function MemoComposer({ initiative, currentUser, onCancel, onGenerated }:
                 <FileText size={14} />
                 <div>
                   <strong>PDF (.pdf)</strong>
-                  <span>Print-ready, with template header & footer</span>
+                  <span>Print-ready, with template header &amp; footer</span>
                 </div>
               </button>
             </div>
